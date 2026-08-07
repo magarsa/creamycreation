@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — scoped to Creamy Creation, not a generic kit.
+ * See PLAN.md §6 for the rules. Color carries meaning:
+ *   - the 3 STATE colors each have exactly one job (violet/coral/amber)
+ *   - the CATEGORY colors are a separate label-maker system
+ * Feature code must never use raw hex — go through <Button>/<Chip> variants,
+ * which read these variables.
+ */
+:root {
+  /* Base */
+  --ink: #191918; /* near-black, never pure black */
+  --paper: #edece8; /* off-white canvas */
+  --screen: #ffffff; /* screen/card surface */
+  --placeholder: #f1f0ee; /* image slot grey */
+
+  /* Ink at reduced opacity (contrast floor ~0.55 for body copy) */
+  --muted: rgba(25, 25, 24, 0.6);
+  --muted-strong: rgba(25, 25, 24, 0.65);
+  --hairline: rgba(25, 25, 24, 0.12);
+  --hairline-strong: rgba(25, 25, 24, 0.18);
+
+  /* STATE — "doing now" */
+  --violet-bg: #ede7fb;
+  --violet-fg: #5b21b6;
+  --violet-border: #cbb9f3;
+  --violet-solid: #7c3aed;
+
+  /* STATE — "needs attention" */
+  --coral-bg: #fde3de;
+  --coral-fg: #b0341f;
+  --coral-border: rgba(176, 52, 31, 0.28);
+
+  /* STATE — "done" */
+  --amber-bg: #fdf0d8;
+  --amber-fg: #8a5a0b;
+  --amber-border: rgba(138, 90, 11, 0.18);
+  --amber-solid: #f2c97a;
+
+  /* CATEGORY badges (separate system) */
+  --teal-bg: #dceae8; /* wedding */
+  --teal-fg: #2f6e63;
+  --indigo-bg: #e4e8fb; /* anniversary / cupcakes */
+  --indigo-fg: #3e4fa0;
+  --neutral-bg: #ece9e2; /* just because */
+  --neutral-fg: rgba(25, 25, 24, 0.6);
+
+  /* Radii */
+  --radius-control: 7px; /* buttons / inputs / cards */
+  --radius-card: 10px; /* larger cards */
+  --radius-pill: 16px; /* pill chips */
+
+  /* Layout */
+  --screen-pad: 22px;
+}
+
+/* Expose the core neutrals + font to Tailwind utilities (bg-paper, text-ink, …) */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-screen: var(--screen);
+  --color-placeholder: var(--placeholder);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+  --font-sans: var(--font-instrument-sans);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-instrument-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

@@ -4,7 +4,7 @@ Mobile-first ordering site for **Creamy Creation**, a one-person home bakery in 
 
 Customers browse cakes, pick a date, describe what they want, and are handed off to Instagram DM to finish the conversation. There's no in-app payment or accounts — the app captures the inquiry, emails the baker, and gets out of the way. Orders need at least a week's notice; pickup only.
 
-> **Status:** Pre-development. Planning complete, scaffolding next. See [ROADMAP.md](ROADMAP.md) for the build order.
+> **Status:** Phase 0 (walking skeleton) complete and **deployed** → https://creamycreation.safalranamagar.workers.dev · Supabase provisioned, RLS verified. See [ROADMAP.md](ROADMAP.md) for the build order.
 
 ## How it works
 
@@ -54,13 +54,25 @@ docs/            Setup & operations guides (added per phase)
 
 ## Getting started
 
-> Populated during Phase 0. Once scaffolded:
+Requires Node 22+ and pnpm 10+.
 
 ```bash
 pnpm install
-cp .env.example .env.local   # fill in Supabase / Resend / IG values
-pnpm dev
+cp .env.example .env.local   # fill in values (Supabase etc. — see below)
+pnpm dev                     # http://localhost:3000
 ```
+
+Useful scripts:
+
+```bash
+pnpm typecheck   # tsc --noEmit
+pnpm lint        # eslint
+pnpm test        # vitest (unit + component)
+pnpm build       # production build
+pnpm db:test     # pgTAP RLS tests (needs local Supabase running)
+```
+
+Setting up Supabase and Cloudflare needs your accounts — see [docs/phase-0-handoff.md](docs/phase-0-handoff.md).
 
 Configuration is environment-driven so the same code runs against test values now and the baker's real values at launch — nothing bakery-specific is hardcoded. See [PLAN.md §14](PLAN.md) for the config strategy and [`.env.example`](.env.example) for every variable.
 
