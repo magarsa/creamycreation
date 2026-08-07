@@ -17,7 +17,12 @@ export default function ReviewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const missing = !draft.event_date || !draft.occasion || !draft.size || !draft.flavour;
+  const missing =
+    !draft.event_date ||
+    !draft.occasion ||
+    !draft.size ||
+    !draft.flavour ||
+    !draft.preferred_name?.trim();
 
   async function submit() {
     if (missing) return;

@@ -43,3 +43,19 @@ jobs:
           version: latest
       - run: supabase start
       - run: supabase test db
+
+  e2e:
+    name: e2e (playwright funnel)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      # The funnel E2E mocks the submit API, so it needs no Supabase secrets —
+      # pages render (empty gallery is fine) and the client flow is what's tested.
+      - run: pnpm test:e2e
