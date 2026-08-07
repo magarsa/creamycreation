@@ -56,11 +56,15 @@ export default function DetailsPage() {
                 onClick={() => update({ size: s })}
                 className={cn(
                   "flex items-center gap-3 rounded-[var(--radius-card)] border px-3 py-2.5 text-left text-sm transition-colors",
-                  selected ? "border-transparent" : "border-hairline",
+                  !selected && "border-hairline",
                 )}
                 style={
                   selected
-                    ? { background: "var(--violet-bg)", color: "var(--violet-fg)" }
+                    ? {
+                        background: "var(--violet-bg)",
+                        color: "var(--violet-fg)",
+                        borderColor: "var(--violet-border)",
+                      }
                     : undefined
                 }
               >

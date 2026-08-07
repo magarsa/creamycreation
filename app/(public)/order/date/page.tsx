@@ -142,7 +142,7 @@ function DayCell({
           ? {
               background: "var(--violet-bg)",
               color: "var(--violet-fg)",
-              borderColor: "var(--violet-border)",
+              borderColor: "var(--violet-fg)",
             }
           : undefined
       }
