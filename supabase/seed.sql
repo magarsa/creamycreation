@@ -13,3 +13,8 @@ insert into public.cakes (title, slug, description, category, size, flavour, sor
   ('Small Wedding Tier', 'small-wedding-tier', 'A two-tier semi-naked cake for intimate weddings, dressed with fresh flowers.', 'wedding', '2 tiers · serves ~40', 'Vanilla & berry', 5),
   ('Vanilla Cupcakes', 'vanilla-cupcakes', 'A dozen swirled buttercream cupcakes, perfect for sharing.', 'cupcakes', 'Dozen', 'Vanilla', 6)
 on conflict (slug) do nothing;
+
+-- Local/CI baker allowlist. The real baker emails live only in the cloud project
+-- (added out-of-band), never committed to this public repo.
+insert into public.bakers (email) values ('baker@example.com')
+on conflict (email) do nothing;
