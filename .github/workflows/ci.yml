@@ -24,7 +24,14 @@ jobs:
       - run: pnpm test
       # Builds the Next app AND the Cloudflare worker bundle — guards against a
       # dep bump breaking the OpenNext adapter (Next 16 is bleeding edge).
+      # The NEXT_PUBLIC_* vars (repo Variables, not Secrets — they're public) let
+      # the gallery prerender real data. Absent, the build still passes with an
+      # empty gallery (queries degrade gracefully).
       - run: pnpm exec opennextjs-cloudflare build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
 
   db:
     name: db (migrations · RLS pgTAP)

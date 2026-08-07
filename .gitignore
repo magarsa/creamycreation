@@ -146,3 +146,6 @@ vite.config.ts.timestamp-*
 .open-next/
 .wrangler/
 cloudflare-env.d.ts
+
+# macOS Finder cruft
+.DS_Store
