@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireBaker } from "@/lib/auth";
 import { OCCASION_LABELS } from "@/lib/domain/order";
 import { STATUS_LABELS, STATUS_VARIANT } from "@/lib/domain/status";
@@ -49,20 +50,24 @@ export default async function OrdersPage() {
       ) : (
         <ul className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
           {list.map((i) => (
-            <li
-              key={i.id}
-              className="flex items-center justify-between gap-3 px-4 py-3"
-            >
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-sm font-medium">{i.preferred_name}</span>
-                <span className="truncate text-[13px] text-muted">
-                  {OCCASION_LABELS[i.occasion]} · {formatEventDate(i.event_date)}{" "}
-                  · {i.size}
-                </span>
-              </div>
-              <Chip variant={STATUS_VARIANT[i.status]} className="shrink-0">
-                {STATUS_LABELS[i.status]}
-              </Chip>
+            <li key={i.id}>
+              <Link
+                href={`/baker/orders/${i.id}`}
+                className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-black/[0.02]"
+              >
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="text-sm font-medium">
+                    {i.preferred_name}
+                  </span>
+                  <span className="truncate text-[13px] text-muted">
+                    {OCCASION_LABELS[i.occasion]} ·{" "}
+                    {formatEventDate(i.event_date)} · {i.size}
+                  </span>
+                </div>
+                <Chip variant={STATUS_VARIANT[i.status]} className="shrink-0">
+                  {STATUS_LABELS[i.status]}
+                </Chip>
+              </Link>
             </li>
           ))}
         </ul>
