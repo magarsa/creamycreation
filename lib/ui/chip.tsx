@@ -38,32 +38,32 @@ const STYLES: Record<ChipVariant, CSSProperties> = {
   "category-birthday": {
     background: "var(--coral-bg)",
     color: "var(--coral-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--coral-border)",
   },
   "category-kids": {
     background: "var(--amber-bg)",
     color: "var(--amber-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--amber-border)",
   },
   "category-anniversary": {
     background: "var(--indigo-bg)",
     color: "var(--indigo-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--indigo-border)",
   },
   "category-cupcakes": {
     background: "var(--indigo-bg)",
     color: "var(--indigo-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--indigo-border)",
   },
   "category-wedding": {
     background: "var(--teal-bg)",
     color: "var(--teal-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--teal-border)",
   },
   "category-just_because": {
     background: "var(--neutral-bg)",
     color: "var(--neutral-fg)",
-    borderColor: "transparent",
+    borderColor: "var(--neutral-border)",
   },
 };
 

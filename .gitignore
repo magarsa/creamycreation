@@ -149,3 +149,13 @@ cloudflare-env.d.ts
 
 # macOS Finder cruft
 .DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Next.js dev-generated agent guides
+/AGENTS.md
+/CLAUDE.md

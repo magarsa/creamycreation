@@ -21,30 +21,37 @@
   --hairline: rgba(25, 25, 24, 0.12);
   --hairline-strong: rgba(25, 25, 24, 0.18);
 
+  /* Chip tints are deepened a touch and every chip carries a color-matched
+   * border so it separates from the paper background (which the lightest tints
+   * otherwise blended into). */
+
   /* STATE — "doing now" */
-  --violet-bg: #ede7fb;
+  --violet-bg: #e6ddfa;
   --violet-fg: #5b21b6;
-  --violet-border: #cbb9f3;
+  --violet-border: #bda7ee;
   --violet-solid: #7c3aed;
 
   /* STATE — "needs attention" */
-  --coral-bg: #fde3de;
+  --coral-bg: #fbd7cf;
   --coral-fg: #b0341f;
-  --coral-border: rgba(176, 52, 31, 0.28);
+  --coral-border: rgba(176, 52, 31, 0.34);
 
   /* STATE — "done" */
-  --amber-bg: #fdf0d8;
+  --amber-bg: #fbe7bf;
   --amber-fg: #8a5a0b;
-  --amber-border: rgba(138, 90, 11, 0.18);
+  --amber-border: rgba(138, 90, 11, 0.32);
   --amber-solid: #f2c97a;
 
   /* CATEGORY badges (separate system) */
-  --teal-bg: #dceae8; /* wedding */
+  --teal-bg: #cfe4de; /* wedding */
   --teal-fg: #2f6e63;
-  --indigo-bg: #e4e8fb; /* anniversary / cupcakes */
+  --teal-border: rgba(47, 110, 99, 0.34);
+  --indigo-bg: #d9e0fa; /* anniversary / cupcakes */
   --indigo-fg: #3e4fa0;
-  --neutral-bg: #ece9e2; /* just because */
+  --indigo-border: rgba(62, 79, 160, 0.34);
+  --neutral-bg: #e5e0d3; /* just because */
   --neutral-fg: rgba(25, 25, 24, 0.6);
+  --neutral-border: rgba(25, 25, 24, 0.2);
 
   /* Radii */
   --radius-control: 7px; /* buttons / inputs / cards */

@@ -1,7 +1,34 @@
 # Deploy
 
-Production runs on **Cloudflare Workers** via the OpenNext adapter. Deploys are
-automated by `.github/workflows/deploy.yml` on every push to `main`.
+Production runs on **Cloudflare Workers** via the OpenNext adapter.
+
+> ## ⚠️ Deploy via CI, not locally — secrets get baked in
+> OpenNext snapshots the whole **build-time environment** into the Worker bundle
+> (`.open-next/cloudflare/next-env.mjs`). So `pnpm run deploy` **run locally** bakes
+> everything in your `.env.local` — including `SUPABASE_SERVICE_ROLE_KEY` — into the
+> deployed code, in plaintext. That is not where a secret should live.
+>
+> **The safe path:** deploy from CI (`.github/workflows/deploy.yml`), where the build
+> environment has only the public `NEXT_PUBLIC_*` values (fine to bake) and the real
+> secrets are **Cloudflare Worker secret bindings** injected at runtime. Use a local
+> `pnpm run deploy` only for throwaway/dev, never with real secrets in `.env.local`.
+
+## Secret hardening checklist (before real customers)
+
+1. **Rotate the service-role key** — Supabase → Settings → API → roll `service_role`
+   (any local deploy so far has baked the old one into a bundle). Update `.env.local`
+   and the Worker secret with the new value.
+2. **Set Worker secret bindings** (you run these; the value is pasted, never committed):
+   ```bash
+   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+   npx wrangler secret put RESEND_API_KEY
+   npx wrangler secret put BAKERY_PRIMARY_EMAIL   # personal email — not committed to the public repo
+   npx wrangler secret put RESEND_FROM
+   ```
+   `NEXT_PUBLIC_SUPABASE_URL/ANON_KEY` are public and inlined at build — no binding needed.
+3. **Wire CI deploy** (below) and deploy from Actions, so the bundle is built clean.
+4. Confirm the bundle is clean: `grep -rc SUPABASE_SERVICE_ROLE .open-next/` should not
+   show the key *value* embedded (only runtime `process.env` lookups).
 
 ## One-time setup (needs your Cloudflare account)
 
@@ -47,7 +74,7 @@ Settings → Variables, or `wrangler secret put`) — this is the test→baker s
 - `RESEND_API_KEY`, `RESEND_FROM` (Phase 1)
 - `BAKERY_ICS_URL` (Phase 3), `IG_LONG_LIVED_TOKEN`, `BAKERY_IG_USER_ID` (Phase 4)
 
-## Manual deploy (fallback)
+## Manual deploy (dev only — see the warning above)
 
 ```bash
 npx wrangler login
@@ -56,5 +83,8 @@ pnpm run deploy      # opennextjs-cloudflare build && deploy
                      #  reserved pnpm built-in and won't run this script)
 pnpm run preview     # or run the worker locally first
 ```
+
+This bakes `.env.local` into the bundle. Fine for a personal dev deploy; **never** for
+a build that will serve real customers — use the CI deploy instead.
 
 Live URL: https://creamycreation.safalranamagar.workers.dev
