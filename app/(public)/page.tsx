@@ -89,6 +89,11 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      <footer className="flex gap-4 border-t border-hairline pt-6 text-[13px] text-muted">
+        <Link href="/flavours">Flavours &amp; pricing</Link>
+        <Link href="/faq">Good to know</Link>
+      </footer>
     </main>
   );
 }

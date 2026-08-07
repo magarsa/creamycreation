@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — Phase 1 (core funnel, in progress)
+- **Schema**: `cakes`, `inquiries`, `inquiry_photos` + enums, RLS, storage buckets (migration 0002, applied to live DB). Inquiries are insert-only via the service role (no anon policy). 6 curated cakes seeded; db types regenerated.
+- **Domain** (pure, tested): order Zod schema + option lists, availability stub (date-key based, timezone-aware), Instagram deep-link builder.
+- **Read-side**: home, gallery (masonry + category filters), cake detail (SSG from live DB).
+- **Order funnel**: 4-step flow (date · details · references · review) with a sessionStorage-persisted draft, then `/order/sent` with the Instagram "Open the DM" handoff.
+- **API**: `submit-inquiry` (validate → service-role insert → move photos → Resend email, non-fatal → `notification_status`; idempotent on key) and `upload-url` (signed upload URLs). Verified end-to-end against the live project.
+- **Pages**: flavours & pricing, FAQ (with cottage-food disclosure placeholder).
+- **Tests**: 27 unit tests; pgTAP RLS coverage extended to the new tables.
+- _Remaining for Phase 1_: Playwright funnel E2E, submit-handler unit tests, then merge.
+
 ### Added
 - **Phase 0 — walking skeleton & foundations:**
   - Next.js 16 (App Router) + TypeScript strict + Tailwind v4; Instrument Sans self-hosted via `next/font`.
