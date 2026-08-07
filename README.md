@@ -4,7 +4,7 @@ Mobile-first ordering site for **Creamy Creation**, a one-person home bakery in 
 
 Customers browse cakes, pick a date, describe what they want, and are handed off to Instagram DM to finish the conversation. There's no in-app payment or accounts — the app captures the inquiry, emails the baker, and gets out of the way. Orders need at least a week's notice; pickup only.
 
-> **Status:** Phase 0 (walking skeleton) complete — app builds, tests pass, landing placeholder renders. See [ROADMAP.md](ROADMAP.md) for the build order and [docs/phase-0-handoff.md](docs/phase-0-handoff.md) for remaining cloud connections.
+> **Status:** Phase 0 (walking skeleton) complete and **deployed** → https://creamycreation.safalranamagar.workers.dev · Supabase provisioned, RLS verified. See [ROADMAP.md](ROADMAP.md) for the build order.
 
 ## How it works
 

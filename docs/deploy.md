@@ -51,6 +51,10 @@ Settings → Variables, or `wrangler secret put`) — this is the test→baker s
 
 ```bash
 npx wrangler login
-pnpm deploy          # opennextjs-cloudflare build && deploy
-pnpm preview         # or run the worker locally first
+pnpm run deploy      # opennextjs-cloudflare build && deploy
+                     # (use `pnpm run deploy`, not `pnpm deploy` — the latter is a
+                     #  reserved pnpm built-in and won't run this script)
+pnpm run preview     # or run the worker locally first
 ```
+
+Live URL: https://creamycreation.safalranamagar.workers.dev

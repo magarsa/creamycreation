@@ -44,14 +44,14 @@ the real Workers runtime (`GET / 200 OK`) — no Cloudflare account needed to co
 > which runs the **Node.js runtime** with `nodejs_compat` and supports Next 16.
 
 Files: `open-next.config.ts`, `wrangler.jsonc`, and `initOpenNextCloudflareForDev()` in
-`next.config.ts`. Scripts: `pnpm preview` (local workerd), `pnpm deploy` (to Cloudflare).
+`next.config.ts`. Scripts: `pnpm run preview` (local workerd), `pnpm run deploy` (to Cloudflare — note `run`, since `pnpm deploy` is a reserved built-in).
 
 To go live (needs your Cloudflare account):
 
 ```bash
 pnpm preview            # optional — run the worker bundle locally first
 npx wrangler login
-pnpm deploy             # builds + uploads the worker
+pnpm run deploy         # builds + uploads the worker
 ```
 
 Then set env vars per environment in the Cloudflare dashboard (or `wrangler secret put`
