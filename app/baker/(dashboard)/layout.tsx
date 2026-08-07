@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireBaker } from "@/lib/auth";
+import { BakerNav } from "@/lib/ui/baker-nav";
 
 export default async function DashboardLayout({
   children,
@@ -21,7 +22,8 @@ export default async function DashboardLayout({
           </button>
         </form>
       </header>
-      {children}
+      <div className="flex flex-1 flex-col">{children}</div>
+      <BakerNav />
     </div>
   );
 }

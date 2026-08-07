@@ -32,7 +32,8 @@ export default async function OrdersPage() {
       </div>
 
       {failed > 0 && (
-        <div
+        <Link
+          href="/baker/notifications"
           className="rounded-[var(--radius-card)] border px-4 py-2.5 text-[13px]"
           style={{
             background: "var(--coral-bg)",
@@ -41,8 +42,8 @@ export default async function OrdersPage() {
           }}
         >
           {failed} {failed === 1 ? "inquiry" : "inquiries"} didn&rsquo;t email
-          you — check them below.
-        </div>
+          you — review →
+        </Link>
       )}
 
       {list.length === 0 ? (
