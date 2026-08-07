@@ -22,7 +22,9 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
-      - run: pnpm build
+      # Builds the Next app AND the Cloudflare worker bundle — guards against a
+      # dep bump breaking the OpenNext adapter (Next 16 is bleeding edge).
+      - run: pnpm exec opennextjs-cloudflare build
 
   db:
     name: db (migrations · RLS pgTAP)

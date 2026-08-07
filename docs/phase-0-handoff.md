@@ -33,20 +33,30 @@ pnpm db:test              # runs the pgTAP RLS tests
 
 Then put the project URL + anon key into `.env.local` (and later into Cloudflare env vars).
 
-### 2. Cloudflare Pages
+### 2. Cloudflare (Workers via OpenNext) — adapter verified ✅
 
-The app builds with a standard `next build`. **One thing to verify before wiring the
-deploy:** Cloudflare's Next.js adapter (`@opennextjs/cloudflare`) needs to support
-Next.js **16** — it's brand new. Check current support before committing to it:
+The Cloudflare deploy path is wired and **verified locally**: `@opennextjs/cloudflare`
+1.20 builds the Next 16 app into a `workerd` bundle and the landing page renders under
+the real Workers runtime (`GET / 200 OK`) — no Cloudflare account needed to confirm this.
 
-- **If supported:** add `@opennextjs/cloudflare` + a `wrangler.jsonc`, connect the repo
-  in the Cloudflare dashboard, set the env vars per environment (this is the test→baker
-  switch point, PLAN.md §14).
-- **If not yet supported:** either pin Next.js 15 LTS (the plan's original target), or
-  deploy to Vercel in the interim (works out of the box) and move to Cloudflare once the
-  adapter catches up.
+> The Next.js 16 "version trap" you may read about affects `@cloudflare/next-on-pages`
+> (Edge runtime, can't run Next 16's Node-only proxy). We use `@opennextjs/cloudflare`,
+> which runs the **Node.js runtime** with `nodejs_compat` and supports Next 16.
 
-This is a real decision — flagged in the PR summary. It does not block Phase 1.
+Files: `open-next.config.ts`, `wrangler.jsonc`, and `initOpenNextCloudflareForDev()` in
+`next.config.ts`. Scripts: `pnpm preview` (local workerd), `pnpm deploy` (to Cloudflare).
+
+To go live (needs your Cloudflare account):
+
+```bash
+pnpm preview            # optional — run the worker bundle locally first
+npx wrangler login
+pnpm deploy             # builds + uploads the worker
+```
+
+Then set env vars per environment in the Cloudflare dashboard (or `wrangler secret put`
+for secrets) — this is the test→baker switch point (PLAN.md §14). For ISR/data caching
+later, add the R2 incremental cache override in `open-next.config.ts`.
 
 ### 3. CI secrets
 

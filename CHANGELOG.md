@@ -20,7 +20,7 @@ All notable changes to this project are documented here. Format follows
 
 ### Notes
 - Resolved to Next.js **16** (not 15) — `create-next-app` latest ships 16. React 19, Tailwind v4.
-- Cloudflare deploy adapter (`@opennextjs/cloudflare`) support for Next 16 must be verified before wiring the deploy — see handoff doc.
+- Cloudflare deploy wired via `@opennextjs/cloudflare` (Workers, Node runtime) and **verified locally** — Next 16 builds to a `workerd` bundle and renders under the Workers runtime. `pnpm preview` runs it locally; `pnpm deploy` ships it. (The Next 16 "version trap" affects `next-on-pages`/Edge, not this adapter.)
 
 <!--
 Version ↔ phase map (fill in as phases land):
