@@ -17,21 +17,21 @@ handoff steps — none block starting Phase 1 locally.
 
 ## Remaining connections (need your accounts)
 
-### 1. Supabase project
+### 1. Supabase project — done ✅
+
+Project **`creamycreation`** (`uciouqrrxrljbhjfcxpq`, org `magarsa`, us-east-1) is
+created, the migration is applied, and RLS is verified against the live DB (anon reads
+the config seed row; anon insert returns 401). URL + publishable key are in `.env.local`.
+
+Still to do by you, when Phase 1 lands: copy the **service role key** from the dashboard
+(Settings → API) into your env — the MCP only exposes publishable keys.
 
 ```bash
-# Option A — link an existing/new cloud project:
-supabase login
-supabase link --project-ref <your-project-ref>
-supabase db push          # applies supabase/migrations/0001_init.sql
-supabase gen types typescript --linked > lib/db/types.ts   # replace hand-written types
-
-# Option B — local dev (needs Docker Desktop running):
-supabase start            # applies migrations + seed
-pnpm db:test              # runs the pgTAP RLS tests
+# Local pgTAP run (optional, needs Docker):
+supabase start && pnpm db:test
+# Regenerate types from the live project (optional — hand-written types are accurate):
+supabase gen types typescript --project-id uciouqrrxrljbhjfcxpq > lib/db/types.ts
 ```
-
-Then put the project URL + anon key into `.env.local` (and later into Cloudflare env vars).
 
 ### 2. Cloudflare (Workers via OpenNext) — adapter verified ✅
 

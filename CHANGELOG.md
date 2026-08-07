@@ -15,8 +15,12 @@ All notable changes to this project are documented here. Format follows
   - Vitest unit + component tests (config validation, UI primitives); ESLint; `next build`.
   - GitHub Actions CI: `web` (typecheck · lint · test · build) + `db` (migrations · pgTAP).
   - Styled landing placeholder, visually verified on mobile.
+  - CI/CD: `.github/workflows/deploy.yml` auto-deploys to Cloudflare Workers on push to `main` (see [docs/deploy.md](docs/deploy.md)).
 - Planning docs: [PLAN.md](PLAN.md), [ROADMAP.md](ROADMAP.md), README, and this changelog.
-- [docs/phase-0-handoff.md](docs/phase-0-handoff.md) — remaining Supabase/Cloudflare connection steps.
+- [docs/phase-0-handoff.md](docs/phase-0-handoff.md) and [docs/deploy.md](docs/deploy.md) — connection & deploy steps.
+
+### Infrastructure
+- Provisioned Supabase project `creamycreation` (`uciouqrrxrljbhjfcxpq`, us-east-1); migration applied; RLS verified against the live DB.
 
 ### Notes
 - Resolved to Next.js **16** (not 15) — `create-next-app` latest ships 16. React 19, Tailwind v4.
