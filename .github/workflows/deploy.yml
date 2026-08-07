@@ -9,10 +9,14 @@ name: Deploy
 # Server-only runtime vars/secrets (BAKERY_*, SUPABASE_SERVICE_ROLE_KEY, RESEND_*)
 # are set on the Worker in the Cloudflare dashboard — the test→baker switch (PLAN.md §14).
 
+# Manual-trigger for now (Run workflow button). Flip on auto-deploy by
+# uncommenting the push trigger once CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
+# secrets are added (see docs/deploy.md). Until then, deploys are done locally
+# with `pnpm run deploy`.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  # push:
+  #   branches: [main]
 
 concurrency:
   group: deploy-production
