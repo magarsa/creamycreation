@@ -71,13 +71,35 @@ pnpm run cron:deploy
 
 Open **/baker/calendar**. It shows the sync status at the top and every blocked
 day below. A freshly deployed worker says *"Calendar not connected yet"* until
-its first successful run — trigger one immediately instead of waiting for the
-hour:
+its first successful run, which happens at :20 past the hour.
+
+### Triggering a sync now instead of waiting
+
+`wrangler dev` runs the worker locally, and reads its secrets from a
+`.dev.vars` file rather than from the deployed Worker — so create one first:
+
+```bash
+cat > workers/cron/.dev.vars <<'EOF'
+SUPABASE_URL="https://uciouqrrxrljbhjfcxpq.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="..."
+BAKERY_ICS_URL="https://calendar.google.com/calendar/ical/.../basic.ics"
+RESEND_API_KEY="..."
+EOF
+```
+
+> `.dev.vars` holds the real service-role key and the real calendar URL. It is
+> gitignored — keep it that way, and don't paste its contents anywhere.
+
+Then run it and fire the cron by hand:
 
 ```bash
 pnpm run cron:dev                       # then, in another terminal:
 curl "http://localhost:8787/__scheduled?cron=20+*+*+*+*"
 ```
+
+This writes to the **real** database — it's the same Supabase project, not a
+local copy. That's what makes it a useful smoke test, and also why it isn't
+something to run casually.
 
 Add an all-day event to the bookings calendar, run the sync, and that date should
 disappear from `/order/date`.

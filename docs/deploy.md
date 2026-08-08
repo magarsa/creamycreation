@@ -72,7 +72,44 @@ Settings → Variables, or `wrangler secret put`) — this is the test→baker s
 - `BAKERY_*` identity (non-secret — can be plain vars)
 - `SUPABASE_SERVICE_ROLE_KEY` (secret — Phase 1)
 - `RESEND_API_KEY`, `RESEND_FROM` (Phase 1)
-- `BAKERY_ICS_URL` (Phase 3), `IG_LONG_LIVED_TOKEN`, `BAKERY_IG_USER_ID` (Phase 4)
+
+`BAKERY_ICS_URL` is **not** in that list: since Phase 3 it belongs to the cron
+Worker, not this one (see below). `IG_LONG_LIVED_TOKEN` / `BAKERY_IG_USER_ID`
+will land there too in Phase 4.
+
+## The cron Worker (Phase 3+)
+
+There are **two** Workers, deployed separately with separate secrets:
+
+| Worker | What it is | Deploy |
+|---|---|---|
+| `creamycreation` | the site, built by the OpenNext adapter | `pnpm run deploy` (prefer CI — see the warning above) |
+| `creamycreation-cron` | hourly calendar sync (Phase 3), Instagram sync (Phase 4) | `pnpm run cron:deploy` |
+
+**The secret-baking warning above does not apply to the cron Worker.** That
+hazard is an OpenNext build step, which snapshots the build environment into
+`next-env.mjs`. Plain `wrangler deploy` does nothing of the kind, and the cron
+Worker reads its config from the runtime `env` binding rather than
+`process.env`. Deploying it locally is safe.
+
+Its secrets are its own — nothing is shared with the app Worker. Deploy it
+first (a secret can't be set on a Worker that doesn't exist yet), then:
+
+```bash
+npx wrangler secret put SUPABASE_URL              --config workers/cron/wrangler.jsonc
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config workers/cron/wrangler.jsonc
+npx wrangler secret put BAKERY_ICS_URL            --config workers/cron/wrangler.jsonc
+npx wrangler secret put RESEND_API_KEY            --config workers/cron/wrangler.jsonc
+```
+
+Note `SUPABASE_URL`, not `NEXT_PUBLIC_SUPABASE_URL` — the `NEXT_PUBLIC_` prefix
+only means "inline at Next build time", and nothing here is built by Next.
+
+Secrets take effect immediately; no redeploy needed. Non-secret values (timezone,
+alert recipient, site URL) live in `workers/cron/wrangler.jsonc` under `vars`.
+
+Full walkthrough, including publishing the calendar and what happens when the
+feed breaks: [calendar-setup.md](calendar-setup.md).
 
 ## Manual deploy (dev only — see the warning above)
 
