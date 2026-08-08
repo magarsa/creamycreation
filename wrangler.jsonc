@@ -13,8 +13,12 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "creamycreation"
     }
-  ]
-  // Env vars (BAKERY_*, Supabase, Resend, …) are set in the Cloudflare dashboard
-  // per environment — the test→baker switch point (PLAN.md §14). Secrets via
-  // `wrangler secret put`, not committed here.
+  ],
+  // Non-secret runtime vars — plain text is fine, these aren't sensitive.
+  // True secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) stay out of this file;
+  // set them via `wrangler secret put` instead (PLAN.md §14, docs/deploy.md).
+  "vars": {
+    "BAKERY_PRIMARY_EMAIL": "safalranamagar@gmail.com",
+    "RESEND_FROM": "onboarding@resend.dev"
+  }
 }
