@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — Phase 3 (calendar & real availability)
+- **Cron worker** (`workers/cron`, a separate Wrangler project from the OpenNext-built app): hourly ICS sync that fetches the baker's published calendar, parses it, and rebuilds `blocked_dates`. Upserts before pruning, so a half-finished run over-blocks rather than opening a taken date.
+- **Schema** (migration 0004): `blocked_dates` (anon-readable cache, service-role writes) and `sync_state` (baker-readable job health). Anon's read on `blocked_dates` is a **column grant, not just a row policy** — the picker needs the date, but `reason` holds calendar event titles ("Chen order") that must not be readable with the publicly-shipped anon key. `sync_state` replaces PLAN.md §5's `sync_failures` log — one row per job answers "healthy?" and "how many in a row?" without a windowed query or unbounded growth.
+- **Domain** (pure, tested): `ics.ts` — RFC 5545 line unfolding, all-day vs. timed events, exclusive all-day `DTEND`, `TZID`/UTC day resolution, cancelled-event and runaway-`DTEND` handling; `sync.ts` — the fail-open policy (keep the cache on failure; one alert per outage at 3 consecutive failures, reset on recovery).
+- **Real availability**: the date picker's Phase 1 stub is gone — blocked dates now come from the ICS cache. A saved draft whose date has since been taken is caught on return instead of failing at submit.
+- **Server-side date check**: `submit-inquiry` re-validates the date against blocked dates, min-notice, and vacation mode, so a stale draft or a hand-rolled POST can't book a day the picker greys out.
+- **`/baker/calendar`**: read-only blocked dates by month, plus sync health with an explicit warning that a stale feed means recent bookings aren't blocked on the site yet.
+- **Tests**: 43 new unit tests (ICS parsing, sync policy, availability edges incl. the bakery-midnight case, submit-inquiry date rejection); pgTAP for the two new tables.
+- **Docs**: [docs/calendar-setup.md](docs/calendar-setup.md) — publishing a private ICS URL, worker secrets, how events map to blocked days, and what happens when the feed breaks.
+- _Not included_: a "one slot left" state (needs capacity math from inquiry status — deferred with the rest to v1.5) and manual blocking from the dashboard (the calendar is the source of truth).
+
 ### Added — Phase 1 (core funnel, in progress)
 - **Schema**: `cakes`, `inquiries`, `inquiry_photos` + enums, RLS, storage buckets (migration 0002, applied to live DB). Inquiries are insert-only via the service role (no anon policy). 6 curated cakes seeded; db types regenerated.
 - **Domain** (pure, tested): order Zod schema + option lists, availability stub (date-key based, timezone-aware), Instagram deep-link builder.

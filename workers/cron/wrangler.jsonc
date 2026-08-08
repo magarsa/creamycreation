@@ -1,0 +1,39 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "creamycreation-cron",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // A SEPARATE Worker from the web app (../../wrangler.jsonc). The app is built
+  // by the OpenNext adapter, which owns its entrypoint and exports only a fetch
+  // handler — bolting a scheduled handler onto generated code would break on
+  // every adapter upgrade. PLAN.md §2 always called for `workers/cron` anyway.
+  //
+  // Phase 3: one trigger. Phase 4 adds the Instagram feed sync alongside it.
+  "triggers": {
+    // Hourly, at :20 — off the top of the hour, where every cron on Cloudflare
+    // queues up at once.
+    "crons": ["20 * * * *"]
+  },
+
+  // Non-secret values only. Secrets are set per-worker and are NOT shared with
+  // the web app's worker:
+  //   wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config workers/cron/wrangler.jsonc
+  //   wrangler secret put BAKERY_ICS_URL           --config workers/cron/wrangler.jsonc
+  //   wrangler secret put RESEND_API_KEY           --config workers/cron/wrangler.jsonc
+  //   wrangler secret put SUPABASE_URL             --config workers/cron/wrangler.jsonc
+  //
+  // BAKERY_ICS_URL is a secret rather than a var: a published calendar URL is
+  // "secret by unguessability" — anyone holding it can read the baker's calendar.
+  "vars": {
+    "BAKERY_TIMEZONE": "America/New_York",
+    "BAKERY_PRIMARY_EMAIL": "safalranamagar@gmail.com",
+    "RESEND_FROM": "onboarding@resend.dev",
+    "SITE_URL": "https://creamycreation.safalranamagar.workers.dev"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

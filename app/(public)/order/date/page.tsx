@@ -1,15 +1,27 @@
 import Link from "next/link";
-import { getPublicConfig } from "@/lib/db/queries";
+import { getBlockedDates, getPublicConfig } from "@/lib/db/queries";
 import { bakeryIdentity } from "@/lib/bakery";
+import { addDaysKey, todayKeyInTz } from "@/lib/domain/availability";
 import { DatePicker } from "./date-picker";
 
 export const dynamic = "force-dynamic";
 
 const DEFAULT_MIN_NOTICE = 7;
 const DEFAULT_PICKUP = "Sat 10am–2pm";
+/** Matches the six months the picker lets you page through, plus slack. */
+const WINDOW_DAYS = 200;
 
 export default async function DatePage() {
-  const config = await getPublicConfig();
+  const { timezone } = bakeryIdentity();
+  const todayKey = todayKeyInTz(timezone);
+
+  // The blocked-date cache is only as fresh as the last successful ICS sync
+  // (hourly). A booking made minutes ago may not be here yet — the baker is the
+  // backstop for that race, and the submit handler re-checks on the server.
+  const [config, blockedDates] = await Promise.all([
+    getPublicConfig(),
+    getBlockedDates(todayKey, addDaysKey(todayKey, WINDOW_DAYS)),
+  ]);
 
   if (config?.vacation_mode) {
     return (
@@ -36,7 +48,8 @@ export default async function DatePage() {
     <DatePicker
       minNoticeDays={config?.min_notice_days ?? DEFAULT_MIN_NOTICE}
       pickupWindow={config?.pickup_window ?? DEFAULT_PICKUP}
-      timezone={bakeryIdentity().timezone}
+      timezone={timezone}
+      blockedDates={blockedDates}
     />
   );
 }

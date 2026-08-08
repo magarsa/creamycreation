@@ -6,6 +6,7 @@ import { cn } from "./cn";
 
 const TABS = [
   { href: "/baker/orders", label: "Orders" },
+  { href: "/baker/calendar", label: "Calendar" },
   { href: "/baker/cakes", label: "Cakes" },
   { href: "/baker/settings", label: "Settings" },
 ] as const;

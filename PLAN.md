@@ -79,7 +79,10 @@ All tables: `id uuid pk`, `created_at timestamptz default now()`. RLS on from da
 `max_cakes_per_week int`, `min_notice_days int` (default 7), `pickup_window text`.
 
 ### `blocked_dates` (materialized from ICS)
-`date`, `source` ('ics' | 'manual'), `reason text nullable`, `synced_at`. Cache table — safe to truncate & rebuild.
+`blocked_date unique`, `source` ('ics' | 'manual'), `reason text nullable`, `synced_at`. Cache table — safe to truncate & rebuild. (Shipped as `blocked_date`, not `date`, for the same reason `inquiries` uses `event_date`.)
+
+### `sync_state` (one row per cron job)
+`job pk`, `last_attempt_at`, `last_success_at`, `consecutive_failures`, `last_error`, `alerted_at`. **Replaces the `sync_failures` log table §5 originally called for**: the only questions asked of it are "is the feed healthy?" and "how many failures in a row?", which a state row answers directly — a log would need a windowed query to derive consecutive-ness and would grow forever. Baker-readable only (`last_error` can echo feed URLs); Phase 4's Instagram sync reuses it.
 
 ### `inquiries`
 `date`, `occasion`, `size`, `flavour`, `message text nullable`, `notes text nullable`, `reference_link text nullable`, `style_tag text nullable`, `preferred_name text NOT NULL`, `ig_handle text nullable`, `status` (enum: submitted | needs_quote | quoted | confirmed | completed | cancelled), `status_changed_at timestamptz`, `internal_notes text nullable`, `notification_status` (enum: pending | sent | failed), `notification_last_attempt_at timestamptz nullable`, `submitted_at`.
@@ -88,7 +91,8 @@ All tables: `id uuid pk`, `created_at timestamptz default now()`. RLS on from da
 `inquiry_id fk`, `storage_path`, `sort_order`. App-layer enforced cap at 6.
 
 ### RLS summary
-- `cakes`, `ig_media`, `config`, `blocked_dates`, `availability_rules`: **anon SELECT**
+- `cakes`, `ig_media`, `config`, `blocked_dates`: **anon SELECT** (`availability_rules` was folded into `config` — see migration 0001)
+- `sync_state`: **baker SELECT only**; written by the cron worker's service role
 - `inquiries`, `inquiry_photos`: **anon INSERT** only via authenticated service role from the Route Handler; **authenticated SELECT/UPDATE** for the baker
 - Storage: `cakes/` public read; `inquiry-photos/` private, signed URLs for baker
 - Storage upload path: uploads go to `pending/{session_id}/*`; `submit-inquiry` moves them to `bound/{inquiry_id}/*`; nightly cron sweeps `pending/*` older than 24h
@@ -149,9 +153,9 @@ All tables: `id uuid pk`, `created_at timestamptz default now()`. RLS on from da
 6. **Rate limit**: Cloudflare Rate Limiting rule (not app-code), 5 submits per IP per hour.
 
 ### Calendar sync (ICS)
-1. Cron every 60 min: worker fetches ICS URL from `config.ics_url`.
-2. Parses events, upserts `blocked_dates` (date + reason from event title).
-3. On fetch failure: retain existing `blocked_dates` (fail open); log to `sync_failures` table; if 3 consecutive failures, email baker.
+1. Cron every 60 min: worker fetches the ICS URL from its `BAKERY_ICS_URL` secret (a published calendar URL is secret-by-unguessability, so it belongs with the other Cloudflare secrets, not in a DB column).
+2. Parses events, upserts `blocked_dates` (date + reason from event title), then prunes ics-sourced dates that fell out of the feed. Upsert-before-prune, so a run that dies halfway over-blocks rather than freeing a taken date.
+3. On fetch failure: retain existing `blocked_dates` (fail open); record it in `sync_state`; on the 3rd consecutive failure email the baker **once**, resetting on recovery. A 200 that isn't a calendar counts as a failure — otherwise an expired link would parse as "no bookings" and un-block everything.
 4. **Availability formula for v1**: a day is `unavailable` if in `blocked_dates` OR within `min_notice_days` of today. That's it. No capacity math from inquiry-status until v1.5.
 
 ### Nightly notification-failure alert

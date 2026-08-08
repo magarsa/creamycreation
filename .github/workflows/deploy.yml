@@ -45,3 +45,11 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # The cron worker (calendar sync) is a separate Worker with its own
+      # secrets, set once via `wrangler secret put` — see docs/calendar-setup.md.
+      # Deploying it here just ships the code; secrets already on the Worker are
+      # left alone.
+      - run: pnpm run cron:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
