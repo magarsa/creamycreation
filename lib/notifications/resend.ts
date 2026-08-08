@@ -6,10 +6,13 @@ import { OCCASION_LABELS, type Category } from "@/lib/domain/order";
  * (notification_status). If it fails, the inquiry is still saved and surfaces in
  * the nightly "unnotified" alert (Phase 2) — an email failure never loses an order.
  *
+ * BAKERY_BACKUP_EMAIL, if set, is cc'd — a second person/inbox that also learns
+ * about new inquiries. Optional: unset is fine, no-op.
+ *
  * Dev note: Resend test mode only delivers from `onboarding@resend.dev` to your
- * own Resend account email. With placeholder from/to this returns ok:false, which
- * is the correct "failed" path — set RESEND_FROM + BAKERY_PRIMARY_EMAIL to real
- * verified values for actual delivery.
+ * own Resend account email — for ANY recipient, cc included. With placeholder
+ * from/to this returns ok:false, which is the correct "failed" path — set
+ * RESEND_FROM + BAKERY_PRIMARY_EMAIL to real verified values for actual delivery.
  */
 export interface BakerNotification {
   inquiryId: string;
@@ -29,6 +32,7 @@ export async function sendBakerNotification(
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
   const to = process.env.BAKERY_PRIMARY_EMAIL;
+  const cc = process.env.BAKERY_BACKUP_EMAIL;
   if (!apiKey || !from || !to) {
     return { ok: false, error: "Resend not configured" };
   }
@@ -58,20 +62,17 @@ export async function sendBakerNotification(
     </table>
     <p style="font-family:sans-serif;font-size:13px;color:#666">Ref ${n.inquiryId}. They were handed off to Instagram DM to continue.</p>`;
 
+  const subject = `New cake inquiry — ${n.preferredName}, ${n.eventDate}`;
+
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: `New cake inquiry — ${n.preferredName}, ${n.eventDate}`,
-        html,
-      }),
-    });
+    // Try with the backup CC'd, if one is set. Resend's test mode (no verified
+    // domain) 403s the ENTIRE send if any recipient — including cc — isn't the
+    // account owner, so a bad/mismatched backup address must never take down
+    // the primary notification: retry once without cc before giving up.
+    let res = await postEmail(apiKey, { from, to, cc, subject, html });
+    if (!res.ok && cc) {
+      res = await postEmail(apiKey, { from, to, subject, html });
+    }
     if (!res.ok) {
       return { ok: false, error: `Resend ${res.status}` };
     }
@@ -79,6 +80,26 @@ export async function sendBakerNotification(
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "fetch failed" };
   }
+}
+
+function postEmail(
+  apiKey: string,
+  payload: {
+    from: string;
+    to: string;
+    cc?: string;
+    subject: string;
+    html: string;
+  },
+) {
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 function escapeHtml(s: string): string {

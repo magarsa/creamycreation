@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPublicConfig } from "@/lib/db/queries";
+import { bakeryIdentity } from "@/lib/bakery";
 import { DatePicker } from "./date-picker";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function DatePage() {
     <DatePicker
       minNoticeDays={config?.min_notice_days ?? DEFAULT_MIN_NOTICE}
       pickupWindow={config?.pickup_window ?? DEFAULT_PICKUP}
+      timezone={bakeryIdentity().timezone}
     />
   );
 }

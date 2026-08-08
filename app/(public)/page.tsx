@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/lib/ui/button";
 import { CakeCard } from "@/lib/ui/cake-card";
 import { getActiveCakes } from "@/lib/db/queries";
+import { bakeryIdentity } from "@/lib/bakery";
 
 export const revalidate = 3600;
 
@@ -13,18 +14,24 @@ const STEPS = [
 
 export default async function Home() {
   const cakes = (await getActiveCakes()).slice(0, 4);
+  const { tagline, location } = bakeryIdentity();
+  const [taglineFirst, taglineSecond] = tagline.split(". ");
 
   return (
     <main className="flex flex-1 flex-col gap-12 px-[var(--screen-pad)] pb-16 pt-4">
       <header className="flex flex-col gap-4">
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.03em]">
-          Simple, elegant cakes.
-          <br />
-          Made one at a time.
+          {taglineFirst}.
+          {taglineSecond && (
+            <>
+              <br />
+              {taglineSecond}
+            </>
+          )}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
           Custom cakes for birthdays, celebrations, and small weddings. Home
-          bakery in Indian Land, SC. Pickup only, one week&rsquo;s notice.
+          bakery in {location}. Pickup only, one week&rsquo;s notice.
         </p>
         <div className="flex flex-col items-start gap-3 pt-1">
           <Link href="/order/date" className="w-full">

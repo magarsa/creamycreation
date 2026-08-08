@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { FLAVOURS, SIZES } from "@/lib/domain/order";
 import { Chip } from "@/lib/ui/chip";
+import { bakeryIdentity } from "@/lib/bakery";
 
-export const metadata: Metadata = {
-  title: "Flavours & pricing — Creamy Creation",
-  description:
-    "Sizes, flavours, and add-ons. Every cake is custom, so pricing is quoted by DM.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { name } = bakeryIdentity();
+  return {
+    title: `Flavours & pricing — ${name}`,
+    description:
+      "Sizes, flavours, and add-ons. Every cake is custom, so pricing is quoted by DM.",
+  };
+}
 
 const ADDONS: Array<{ name: string; included?: boolean }> = [
   { name: "Buttercream finish", included: true },
@@ -16,6 +20,7 @@ const ADDONS: Array<{ name: string; included?: boolean }> = [
 ];
 
 export default function FlavoursPage() {
+  const { location } = bakeryIdentity();
   return (
     <main className="flex flex-1 flex-col gap-8 px-[var(--screen-pad)] pb-16 pt-2">
       <h1 className="text-2xl font-bold tracking-[-0.02em]">Flavours &amp; pricing</h1>
@@ -63,7 +68,7 @@ export default function FlavoursPage() {
       </Section>
 
       <p className="text-[13px] leading-relaxed text-muted">
-        Pickup only from Indian Land, SC. Every cake is made to order, so final
+        Pickup only from {location}. Every cake is made to order, so final
         pricing is quoted by DM once we&rsquo;ve talked through the details.
       </p>
     </main>

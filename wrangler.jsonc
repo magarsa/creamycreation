@@ -15,9 +15,24 @@
     }
   ],
   // Non-secret runtime vars — plain text is fine, these aren't sensitive.
-  // True secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) stay out of this file;
-  // set them via `wrangler secret put` instead (PLAN.md §14, docs/deploy.md).
+  // This is the single switch point for bakery identity (PLAN.md §14): edit a
+  // value here + `pnpm run deploy` (or set the same name as a plain Cloudflare
+  // dashboard "Variable" instead if you'd rather skip the deploy step for
+  // these — see docs/deploy.md, but then remove it from here so a future
+  // deploy doesn't overwrite the dashboard value).
+  // True secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) stay out of this
+  // file; set them via `wrangler secret put` instead.
+  //
+  // BAKERY_BACKUP_EMAIL (optional cc on the notification email) is left unset:
+  // in Resend test mode cc only delivers to the account owner too, so setting
+  // it now would just add a wasted retry-without-cc to every send. Add it once
+  // a verified sending domain is set up.
   "vars": {
+    "BAKERY_NAME": "Creamy Creation",
+    "BAKERY_TAGLINE": "Simple, elegant cakes. Made one at a time.",
+    "BAKERY_LOCATION": "Indian Land, SC",
+    "BAKERY_TIMEZONE": "America/New_York",
+    "BAKERY_IG_HANDLE": "creamycreation",
     "BAKERY_PRIMARY_EMAIL": "safalranamagar@gmail.com",
     "RESEND_FROM": "onboarding@resend.dev"
   }

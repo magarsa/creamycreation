@@ -6,6 +6,7 @@ import { CategoryBadge } from "@/lib/ui/category-badge";
 import { Chip } from "@/lib/ui/chip";
 import { Placeholder } from "@/lib/ui/placeholder";
 import { getActiveCakes, getCakeBySlug } from "@/lib/db/queries";
+import { bakeryIdentity } from "@/lib/bakery";
 
 export const revalidate = 3600;
 
@@ -20,10 +21,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const { name } = bakeryIdentity();
   const cake = await getCakeBySlug(slug);
-  if (!cake) return { title: "Cake not found — Creamy Creation" };
+  if (!cake) return { title: `Cake not found — ${name}` };
   return {
-    title: `${cake.title} — Creamy Creation`,
+    title: `${cake.title} — ${name}`,
     description: cake.description ?? undefined,
   };
 }

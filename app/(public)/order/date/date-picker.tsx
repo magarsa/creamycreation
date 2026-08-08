@@ -13,23 +13,25 @@ import { formatEventDate } from "@/lib/order/format";
 import { Button } from "@/lib/ui/button";
 import { cn } from "@/lib/ui/cn";
 
-// Stub availability (Phase 1): no blocked dates yet. minNoticeDays + pickupWindow
-// now come from live config (passed by the server page). Phase 3 adds ICS blocks.
-const TZ = "America/New_York";
+// Stub availability (Phase 1): no blocked dates yet. minNoticeDays, pickupWindow,
+// and timezone now come from live config/env (passed by the server page).
+// Phase 3 adds ICS blocks.
 const MONTHS_AHEAD = 6;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export function DatePicker({
   minNoticeDays,
   pickupWindow,
+  timezone,
 }: {
   minNoticeDays: number;
   pickupWindow: string;
+  timezone: string;
 }) {
   const { draft, update } = useOrder();
   const router = useRouter();
 
-  const todayKey = useMemo(() => todayKeyInTz(TZ), []);
+  const todayKey = useMemo(() => todayKeyInTz(timezone), [timezone]);
   const [cursor, setCursor] = useState(() => todayKey.slice(0, 7));
 
   const maxMonth = addDaysKey(todayKey, MONTHS_AHEAD * 31).slice(0, 7);

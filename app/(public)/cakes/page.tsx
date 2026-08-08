@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { GalleryGrid } from "@/lib/ui/gallery-grid";
 import { getActiveCakes } from "@/lib/db/queries";
+import { bakeryIdentity } from "@/lib/bakery";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "The cakes — Creamy Creation",
-  description: "A gallery of custom cakes for birthdays, celebrations, and small weddings.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { name } = bakeryIdentity();
+  return {
+    title: `The cakes — ${name}`,
+    description:
+      "A gallery of custom cakes for birthdays, celebrations, and small weddings.",
+  };
+}
 
 export default async function GalleryPage() {
   const cakes = await getActiveCakes();

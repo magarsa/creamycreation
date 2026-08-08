@@ -5,6 +5,7 @@ import { createInquiry, markNotification } from "@/lib/db/inquiries";
 import { sendBakerNotification } from "@/lib/notifications/resend";
 import { formatEventDate } from "@/lib/order/format";
 import { OCCASION_LABELS } from "@/lib/domain/order";
+import { bakeryIdentity } from "@/lib/bakery";
 
 /*
  * Submit an inquiry. Flow (§5):
@@ -55,9 +56,8 @@ export async function POST(req: Request) {
     await markNotification(inquiry.id, notif.ok ? "sent" : "failed");
   }
 
-  const handle = process.env.BAKERY_IG_HANDLE ?? "creamycreation";
   const igDeepLink = buildInstagramDeepLink(
-    handle,
+    bakeryIdentity().igHandle,
     {
       name: inquiry.preferred_name,
       date: formatEventDate(inquiry.event_date),
