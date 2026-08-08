@@ -1,10 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/db/client";
 import { Button } from "@/lib/ui/button";
 
+// Reasons the /auth/callback route can redirect back here with ?error=.
+const URL_ERROR_MESSAGES: Record<string, string> = {
+  expired:
+    "That link expired or was already used — magic links only work once. Request a new one below.",
+  forbidden: "That email isn't authorized for the baker dashboard.",
+  auth: "Couldn't sign you in — request a new link and try again.",
+};
+
 export default function BakerLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
+
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
@@ -33,6 +53,19 @@ export default function BakerLoginPage() {
           owner can get in.
         </p>
       </div>
+
+      {status === "idle" && urlError && (
+        <div
+          className="rounded-[var(--radius-card)] border px-4 py-3 text-[13px] leading-relaxed"
+          style={{
+            background: "var(--coral-bg)",
+            color: "var(--coral-fg)",
+            borderColor: "var(--coral-border)",
+          }}
+        >
+          {URL_ERROR_MESSAGES[urlError] ?? URL_ERROR_MESSAGES.auth}
+        </div>
+      )}
 
       {status === "sent" ? (
         <div
