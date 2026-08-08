@@ -70,6 +70,12 @@ web_modules/
 .env.*
 !.env.example
 
+# Wrangler local-dev secrets. `wrangler dev` reads these instead of the
+# deployed Worker's secrets, so they hold real values — the service-role key,
+# the calendar URL. Never committed.
+.dev.vars
+.dev.vars.*
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
