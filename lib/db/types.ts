@@ -30,6 +30,33 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_dates: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          id: string
+          reason: string | null
+          source: string
+          synced_at: string
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          source?: string
+          synced_at?: string
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          source?: string
+          synced_at?: string
+        }
+        Relationships: []
+      }
       cakes: {
         Row: {
           category: Database["public"]["Enums"]["category"]
@@ -199,6 +226,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sync_state: {
+        Row: {
+          alerted_at: string | null
+          consecutive_failures: number
+          job: string
+          last_attempt_at: string | null
+          last_error: string | null
+          last_success_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          alerted_at?: string | null
+          consecutive_failures?: number
+          job: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alerted_at?: string | null
+          consecutive_failures?: number
+          job?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

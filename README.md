@@ -4,7 +4,7 @@ Mobile-first ordering site for **Creamy Creation**, a one-person home bakery in 
 
 Customers browse cakes, pick a date, describe what they want, and are handed off to Instagram DM to finish the conversation. There's no in-app payment or accounts — the app captures the inquiry, emails the baker, and gets out of the way. Orders need at least a week's notice; pickup only.
 
-> **Status:** Phase 0 (walking skeleton) complete and **deployed** → https://creamycreation.safalranamagar.workers.dev · Supabase provisioned, RLS verified. See [ROADMAP.md](ROADMAP.md) for the build order.
+> **Status:** Phases 0–3 complete — the funnel, the baker dashboard, and calendar-driven availability are in. **Deployed** → https://creamycreation.safalranamagar.workers.dev. Next up: Instagram feed sync (Phase 4). See [ROADMAP.md](ROADMAP.md) for the build order.
 
 ## How it works
 
@@ -70,6 +70,8 @@ pnpm lint        # eslint
 pnpm test        # vitest (unit + component)
 pnpm build       # production build
 pnpm db:test     # pgTAP RLS tests (needs local Supabase running)
+pnpm cron:dev    # run the calendar-sync worker locally (see docs/calendar-setup.md)
+pnpm cron:deploy # ship the cron worker
 ```
 
 Setting up Supabase and Cloudflare needs your accounts — see [docs/phase-0-handoff.md](docs/phase-0-handoff.md).
@@ -87,7 +89,9 @@ Scoped to this app, not a generic kit. Off-white paper (`#EDECE8`), near-black i
 | [ROADMAP.md](ROADMAP.md) | Phased build order, MVP definition, testable checkpoints |
 | [PLAN.md](PLAN.md) | Architecture, data model, config strategy, licensing, risks |
 | [CHANGELOG.md](CHANGELOG.md) | What shipped, per phase |
-| `docs/` | Operational guides (calendar, Instagram, baker runbook, launch) — added as each phase lands |
+| [docs/calendar-setup.md](docs/calendar-setup.md) | Publishing the bookings calendar as ICS, sync cadence, what happens when the feed breaks |
+| [docs/deploy.md](docs/deploy.md) | Deploying the app and the cron worker to Cloudflare |
+| `docs/` | Remaining operational guides (Instagram, baker runbook, launch) — added as each phase lands |
 
 ## Licensing
 

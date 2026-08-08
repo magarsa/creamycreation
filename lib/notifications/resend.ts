@@ -1,10 +1,11 @@
 import { OCCASION_LABELS, type Category } from "@/lib/domain/order";
+import { escapeHtml, sendEmail } from "./email";
 
 /*
- * Resend email — called via fetch (no SDK dependency). The baker learns about a
- * new inquiry from this email, so the caller MUST record whether it succeeded
- * (notification_status). If it fails, the inquiry is still saved and surfaces in
- * the nightly "unnotified" alert (Phase 2) — an email failure never loses an order.
+ * The new-inquiry email. The baker learns about a new inquiry from this, so the
+ * caller MUST record whether it succeeded (notification_status). If it fails,
+ * the inquiry is still saved and surfaces in the "unnotified" queue (Phase 2) —
+ * an email failure never loses an order. Transport lives in ./email.ts.
  *
  * BAKERY_BACKUP_EMAIL, if set, is cc'd — a second person/inbox that also learns
  * about new inquiries. Optional: unset is fine, no-op.
@@ -64,48 +65,5 @@ export async function sendBakerNotification(
 
   const subject = `New cake inquiry — ${n.preferredName}, ${n.eventDate}`;
 
-  try {
-    // Try with the backup CC'd, if one is set. Resend's test mode (no verified
-    // domain) 403s the ENTIRE send if any recipient — including cc — isn't the
-    // account owner, so a bad/mismatched backup address must never take down
-    // the primary notification: retry once without cc before giving up.
-    let res = await postEmail(apiKey, { from, to, cc, subject, html });
-    if (!res.ok && cc) {
-      res = await postEmail(apiKey, { from, to, subject, html });
-    }
-    if (!res.ok) {
-      return { ok: false, error: `Resend ${res.status}` };
-    }
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "fetch failed" };
-  }
-}
-
-function postEmail(
-  apiKey: string,
-  payload: {
-    from: string;
-    to: string;
-    cc?: string;
-    subject: string;
-    html: string;
-  },
-) {
-  return fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return sendEmail({ apiKey, from, to, cc, subject, html });
 }

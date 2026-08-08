@@ -47,6 +47,35 @@ export async function getCakeBySlug(slug: string): Promise<Cake | null> {
   }
 }
 
+/**
+ * Blocked date keys ("YYYY-MM-DD") in the given window, from the ICS cache.
+ *
+ * Degrades to [] like the queries above. That opens dates up rather than closing
+ * them, which is the deliberate fail-open choice (PLAN.md §5): the baker can
+ * decline one inquiry for a taken day, but a picker that greys out every date
+ * because a read hiccuped loses every sale until someone notices.
+ */
+export async function getBlockedDates(
+  fromKey: string,
+  toKey: string,
+): Promise<string[]> {
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      // `blocked_date` only — `reason` is a calendar event title and is not
+      // granted to anon (migration 0004). Selecting it here would 403.
+      .from("blocked_dates")
+      .select("blocked_date")
+      .gte("blocked_date", fromKey)
+      .lte("blocked_date", toKey);
+    if (error) throw error;
+    return (data ?? []).map((row) => row.blocked_date);
+  } catch (err) {
+    console.warn("getBlockedDates failed; returning []:", errMessage(err));
+    return [];
+  }
+}
+
 /** The single public config row, or null if unavailable. */
 export async function getPublicConfig(): Promise<Config | null> {
   try {

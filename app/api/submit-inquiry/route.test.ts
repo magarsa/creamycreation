@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/db/inquiries", () => ({
   createInquiry: vi.fn(),
@@ -7,11 +7,20 @@ vi.mock("@/lib/db/inquiries", () => ({
 vi.mock("@/lib/notifications/resend", () => ({
   sendBakerNotification: vi.fn(),
 }));
+vi.mock("@/lib/db/queries", () => ({
+  getPublicConfig: vi.fn(),
+  getBlockedDates: vi.fn(),
+}));
 
 import { POST } from "./route";
 import { createInquiry, markNotification } from "@/lib/db/inquiries";
+import { getBlockedDates, getPublicConfig } from "@/lib/db/queries";
 import { sendBakerNotification } from "@/lib/notifications/resend";
 import type { Inquiry } from "@/lib/db/inquiries";
+
+// Pinned so the min-notice check is tested against a fixed "today" rather than
+// whenever the suite happens to run.
+const TODAY = new Date("2026-08-08T12:00:00Z");
 
 const validBody = {
   event_date: "2026-09-01",
@@ -53,7 +62,16 @@ function post(body: unknown): Request {
 }
 
 describe("POST /api/submit-inquiry", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(TODAY);
+    // Default: nothing blocked, no config row → the handler's own defaults apply.
+    vi.mocked(getPublicConfig).mockResolvedValue(null);
+    vi.mocked(getBlockedDates).mockResolvedValue([]);
+  });
+
+  afterEach(() => vi.useRealTimers());
 
   it("returns 422 on an invalid payload", async () => {
     const res = await POST(post({ occasion: "birthday" }));
@@ -107,6 +125,34 @@ describe("POST /api/submit-inquiry", () => {
     vi.mocked(createInquiry).mockRejectedValue(new Error("db down"));
     const res = await POST(post(validBody));
     expect(res.status).toBe(500);
+  });
+
+  it("rejects a date the calendar has since blocked", async () => {
+    vi.mocked(getBlockedDates).mockResolvedValue(["2026-09-01"]);
+
+    const res = await POST(post(validBody));
+    expect(res.status).toBe(422);
+    expect((await res.json()).issues.event_date).toBeDefined();
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("rejects a date inside the min-notice window", async () => {
+    const res = await POST(post({ ...validBody, event_date: "2026-08-10" })); // 2 days out
+    expect(res.status).toBe(422);
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("rejects every date while vacation mode is on", async () => {
+    vi.mocked(getPublicConfig).mockResolvedValue({
+      vacation_mode: true,
+      vacation_message: "Back on the 15th",
+      min_notice_days: 7,
+    } as never);
+
+    const res = await POST(post(validBody));
+    expect(res.status).toBe(422);
+    expect((await res.json()).issues.event_date).toEqual(["Back on the 15th"]);
+    expect(createInquiry).not.toHaveBeenCalled();
   });
 
   it("returns 400 on non-JSON body", async () => {

@@ -32,6 +32,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      # The cron worker is bundled separately from the app, so `next build`
+      # wouldn't catch a broken import in it. Dry-run needs no Cloudflare creds.
+      - run: pnpm exec wrangler deploy --config workers/cron/wrangler.jsonc --dry-run
 
   db:
     name: db (migrations · RLS pgTAP)

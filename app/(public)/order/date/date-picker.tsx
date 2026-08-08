@@ -13,9 +13,9 @@ import { formatEventDate } from "@/lib/order/format";
 import { Button } from "@/lib/ui/button";
 import { cn } from "@/lib/ui/cn";
 
-// Stub availability (Phase 1): no blocked dates yet. minNoticeDays, pickupWindow,
-// and timezone now come from live config/env (passed by the server page).
-// Phase 3 adds ICS blocks.
+// Everything that decides whether a day is pickable comes from the server page:
+// minNoticeDays/pickupWindow from the config row, timezone from env, and
+// blockedDates from the ICS cache the cron worker maintains (Phase 3).
 const MONTHS_AHEAD = 6;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -23,15 +23,26 @@ export function DatePicker({
   minNoticeDays,
   pickupWindow,
   timezone,
+  blockedDates,
 }: {
   minNoticeDays: number;
   pickupWindow: string;
   timezone: string;
+  blockedDates: string[];
 }) {
   const { draft, update } = useOrder();
   const router = useRouter();
 
   const todayKey = useMemo(() => todayKeyInTz(timezone), [timezone]);
+  const blocked = useMemo(() => new Set(blockedDates), [blockedDates]);
+
+  // The draft survives in sessionStorage, so a date picked before the last sync
+  // can be booked by the time they come back. Re-check the saved one rather than
+  // letting Continue carry a date the server will now reject.
+  const selectedState = draft.event_date
+    ? dayState(draft.event_date, { todayKey, minNoticeDays, blockedDates: blocked })
+    : null;
+  const selectionTaken = selectedState === "unavailable";
   const [cursor, setCursor] = useState(() => todayKey.slice(0, 7));
 
   const maxMonth = addDaysKey(todayKey, MONTHS_AHEAD * 31).slice(0, 7);
@@ -81,7 +92,11 @@ export function DatePicker({
             <DayCell
               key={cell.key}
               cell={cell}
-              state={dayState(cell.key, { todayKey, minNoticeDays })}
+              state={dayState(cell.key, {
+                todayKey,
+                minNoticeDays,
+                blockedDates: blocked,
+              })}
               selected={draft.event_date === cell.key}
               onSelect={() => update({ event_date: cell.key })}
             />
@@ -92,7 +107,12 @@ export function DatePicker({
       <Legend />
 
       <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-screen/95 px-[var(--screen-pad)] py-3 backdrop-blur">
-        {draft.event_date ? (
+        {selectionTaken ? (
+          <p className="mb-2 text-[13px]" style={{ color: "var(--coral-fg)" }}>
+            {formatEventDate(draft.event_date!)} isn&apos;t available any more —
+            pick another day.
+          </p>
+        ) : draft.event_date ? (
           <div className="mb-2 flex items-baseline justify-between">
             <span className="text-sm font-medium">
               {formatEventDate(draft.event_date)}
@@ -106,7 +126,7 @@ export function DatePicker({
         )}
         <Button
           className="w-full"
-          disabled={!draft.event_date}
+          disabled={!draft.event_date || selectionTaken}
           onClick={() => router.push("/order/details")}
         >
           Continue
