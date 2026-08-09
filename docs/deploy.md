@@ -73,9 +73,9 @@ Settings → Variables, or `wrangler secret put`) — this is the test→baker s
 - `SUPABASE_SERVICE_ROLE_KEY` (secret — Phase 1)
 - `RESEND_API_KEY`, `RESEND_FROM` (Phase 1)
 
-`BAKERY_ICS_URL` is **not** in that list: since Phase 3 it belongs to the cron
-Worker, not this one (see below). `IG_LONG_LIVED_TOKEN` / `BAKERY_IG_USER_ID`
-will land there too in Phase 4.
+`BAKERY_ICS_URL`, `IG_LONG_LIVED_TOKEN`, and `BAKERY_IG_USER_ID` are **not** in
+that list: since Phase 3/4 they belong to the cron Worker, not this one (see
+below).
 
 ## The cron Worker (Phase 3+)
 
@@ -99,17 +99,25 @@ first (a secret can't be set on a Worker that doesn't exist yet), then:
 npx wrangler secret put SUPABASE_URL              --config workers/cron/wrangler.jsonc
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config workers/cron/wrangler.jsonc
 npx wrangler secret put BAKERY_ICS_URL            --config workers/cron/wrangler.jsonc
+npx wrangler secret put IG_LONG_LIVED_TOKEN       --config workers/cron/wrangler.jsonc
+npx wrangler secret put BAKERY_IG_USER_ID         --config workers/cron/wrangler.jsonc
 npx wrangler secret put RESEND_API_KEY            --config workers/cron/wrangler.jsonc
 ```
 
 Note `SUPABASE_URL`, not `NEXT_PUBLIC_SUPABASE_URL` — the `NEXT_PUBLIC_` prefix
 only means "inline at Next build time", and nothing here is built by Next.
 
+Both sync jobs are optional independently: skip the ICS or Instagram secrets
+and that job just skips itself every tick (recorded, not an error — see
+either setup doc) until you provide them.
+
 Secrets take effect immediately; no redeploy needed. Non-secret values (timezone,
 alert recipient, site URL) live in `workers/cron/wrangler.jsonc` under `vars`.
 
-Full walkthrough, including publishing the calendar and what happens when the
-feed breaks: [calendar-setup.md](calendar-setup.md).
+Full walkthroughs: [calendar-setup.md](calendar-setup.md) (publishing the
+calendar, what happens when the feed breaks) and
+[instagram-setup.md](instagram-setup.md) (connecting the account, token
+refresh cadence).
 
 ## Manual deploy (dev only — see the warning above)
 

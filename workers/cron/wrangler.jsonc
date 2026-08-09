@@ -10,11 +10,14 @@
   // handler — bolting a scheduled handler onto generated code would break on
   // every adapter upgrade. PLAN.md §2 always called for `workers/cron` anyway.
   //
-  // Phase 3: one trigger. Phase 4 adds the Instagram feed sync alongside it.
+  // Phase 3 added the ICS sync at :20. Phase 4 adds the Instagram sync at :40 —
+  // a separate trigger, not a second job in the same tick, so index.ts can
+  // dispatch by controller.cron and one slow sync can't delay the other.
   "triggers": {
-    // Hourly, at :20 — off the top of the hour, where every cron on Cloudflare
-    // queues up at once.
-    "crons": ["20 * * * *"]
+    "crons": [
+      "20 * * * *", // ICS calendar sync
+      "40 * * * *", // Instagram feed sync
+    ]
   },
 
   // Non-secret values only. Secrets are set per-worker and are NOT shared with
@@ -23,9 +26,12 @@
   //   wrangler secret put BAKERY_ICS_URL           --config workers/cron/wrangler.jsonc
   //   wrangler secret put RESEND_API_KEY           --config workers/cron/wrangler.jsonc
   //   wrangler secret put SUPABASE_URL             --config workers/cron/wrangler.jsonc
+  //   wrangler secret put IG_LONG_LIVED_TOKEN      --config workers/cron/wrangler.jsonc
+  //   wrangler secret put BAKERY_IG_USER_ID        --config workers/cron/wrangler.jsonc
   //
-  // BAKERY_ICS_URL is a secret rather than a var: a published calendar URL is
-  // "secret by unguessability" — anyone holding it can read the baker's calendar.
+  // BAKERY_ICS_URL and the Instagram credentials are secrets rather than vars:
+  // a published calendar URL is "secret by unguessability", and the IG token
+  // is a bearer credential — either one leaking hands out real access.
   "vars": {
     "BAKERY_TIMEZONE": "America/New_York",
     "BAKERY_PRIMARY_EMAIL": "safalranamagar@gmail.com",

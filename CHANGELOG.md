@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — Phase 4 (Instagram feed sync)
+- **Second cron trigger** on the existing worker (`workers/cron`), hourly at :40 (offset from the calendar sync's :20 so a slow run of one never delays the other): fetches the latest 25 posts from the Instagram Graph API and rebuilds `ig_media`. Upserts before pruning, same fail-open shape as the calendar sync.
+- **Schema** (migration 0005): `ig_media` (publicly readable, filtered to `is_hidden = false` for anon; the baker's session sees everything). The baker's write access is a **column grant, not just a row policy** — `is_hidden` is togglable from `/baker/settings`, but the sync's own content (caption, media_url, permalink, ...) isn't baker-editable, the same column-grant pattern 0004 used for `blocked_dates.reason`. `sync_state` gains a second job row (`instagram`) — reused, not re-created, per PLAN.md §3.
+- **Domain** (pure, tested): `ig-media.ts` — Graph API response parsing (tolerant of the API's actual non-colon UTC offset, which zod's strict ISO-datetime validator rejects), the add/stale diff a sync run needs, and the gallery merge (curated `cakes` first in their existing order, then IG posts newest-first — source-ordered rather than date-interleaved, since a cake's upload time isn't comparable to a post's timestamp).
+- **Gallery**: `/cakes` now merges both sources through one grid. IG tiles render the actual synced photo — the first real photography the gallery shows, cakes still being grey placeholders pending real product photos. IG posts have no category, so they only ever appear under "All".
+- **`/baker/settings`**: Instagram posts section with a Hide/Show toggle per post — pulls something from the public gallery without touching Instagram itself.
+- **Tests**: 18 new unit tests (Graph API parsing incl. the timestamp-format edge case, the sync diff, the gallery merge); pgTAP for `ig_media`'s RLS (88 total).
+- **Docs**: [docs/instagram-setup.md](docs/instagram-setup.md) — Business/Creator account setup, long-lived token generation, the ~50-day refresh cadence (tokens last 60), and what happens when a sync fails.
+- _Not included_: DM webhook / thread linking (v1.5, gated on Meta app review per PLAN.md §5).
+
 ### Added — Phase 3 (calendar & real availability)
 - **Cron worker** (`workers/cron`, a separate Wrangler project from the OpenNext-built app): hourly ICS sync that fetches the baker's published calendar, parses it, and rebuilds `blocked_dates`. Upserts before pruning, so a half-finished run over-blocks rather than opening a taken date.
 - **Schema** (migration 0004): `blocked_dates` (anon-readable cache, service-role writes) and `sync_state` (baker-readable job health). Anon's read on `blocked_dates` is a **column grant, not just a row policy** — the picker needs the date, but `reason` holds calendar event titles ("Chen order") that must not be readable with the publicly-shipped anon key. `sync_state` replaces PLAN.md §5's `sync_failures` log — one row per job answers "healthy?" and "how many in a row?" without a windowed query or unbounded growth.

@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CakeCard } from "./cake-card";
+import { GalleryItemCard } from "./gallery-item-card";
 import { Chip, type ChipVariant } from "./chip";
 import { cn } from "./cn";
 import { OCCASION_LABELS, type Category } from "@/lib/domain/order";
-import type { Cake } from "@/lib/db/queries";
+import type { GalleryItem } from "@/lib/domain/ig-media";
 
 type Filter = Category | "all";
 
@@ -23,19 +23,25 @@ const FILTER_VARIANT: Record<Filter, ChipVariant> = {
 // Alternating aspect ratios give the masonry columns their varied tile heights.
 const ASPECTS = ["4 / 5", "4 / 3"];
 
-export function GalleryGrid({ cakes }: { cakes: Cake[] }) {
+export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [active, setActive] = useState<Filter>("all");
 
-  // Only offer filters for categories that actually have cakes.
+  // Only offer filters for categories that actually have cakes. IG posts have
+  // no category (mergeGalleryItems' contract), so they never add a filter and
+  // only ever show under "All" — see the shown[] filter below.
   const filters = useMemo<Filter[]>(() => {
-    const present = new Set(cakes.map((c) => c.category));
+    const present = new Set(
+      items.flatMap((i) => (i.source === "cake" ? [i.category] : [])),
+    );
     return ["all", ...(Object.keys(OCCASION_LABELS) as Category[]).filter((c) =>
       present.has(c),
     )];
-  }, [cakes]);
+  }, [items]);
 
   const shown =
-    active === "all" ? cakes : cakes.filter((c) => c.category === active);
+    active === "all"
+      ? items
+      : items.filter((i) => i.source === "cake" && i.category === active);
 
   return (
     <div className="flex flex-col gap-5">
@@ -61,9 +67,9 @@ export function GalleryGrid({ cakes }: { cakes: Cake[] }) {
       </div>
 
       <div className="columns-2 gap-3">
-        {shown.map((cake, i) => (
-          <div key={cake.id} className="mb-3 break-inside-avoid">
-            <CakeCard cake={cake} aspect={ASPECTS[i % ASPECTS.length]} />
+        {shown.map((item, i) => (
+          <div key={`${item.source}-${item.id}`} className="mb-3 break-inside-avoid">
+            <GalleryItemCard item={item} aspect={ASPECTS[i % ASPECTS.length]} />
           </div>
         ))}
       </div>
