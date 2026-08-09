@@ -5,6 +5,12 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — Required contact email on inquiries
+- The order form now requires an email alongside the (still optional) Instagram handle. The Instagram DM handoff only reaches the baker if the customer actually taps through and sends it — Instagram's messaging rules don't let a business message someone who hasn't messaged first, so a typo'd or skipped handle isn't recoverable. Email is the platform-independent fallback that always works.
+- **Schema** (migration 0006): `inquiries.email`, nullable — existing pre-migration rows have none on file and backfilling them would be fake data. "Required" is enforced at the application layer (the Zod schema) for every new submission.
+- Shown on the baker's inquiry detail page as a `mailto:` link, and included in the new-inquiry notification email.
+- **Tests**: 5 new (schema validation, handler rejection on missing/malformed email, notification content).
+
 ### Added — Phase 4 (Instagram feed sync)
 - **Second cron trigger** on the existing worker (`workers/cron`), hourly at :40 (offset from the calendar sync's :20 so a slow run of one never delays the other): fetches the latest 25 posts from the Instagram Graph API and rebuilds `ig_media`. Upserts before pruning, same fail-open shape as the calendar sync.
 - **Schema** (migration 0005): `ig_media` (publicly readable, filtered to `is_hidden = false` for anon; the baker's session sees everything). The baker's write access is a **column grant, not just a row policy** — `is_hidden` is togglable from `/baker/settings`, but the sync's own content (caption, media_url, permalink, ...) isn't baker-editable, the same column-grant pattern 0004 used for `blocked_dates.reason`. `sync_state` gains a second job row (`instagram`) — reused, not re-created, per PLAN.md §3.

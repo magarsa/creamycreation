@@ -174,6 +174,7 @@ export type Database = {
       inquiries: {
         Row: {
           created_at: string
+          email: string | null
           event_date: string
           flavour: string
           id: string
@@ -195,6 +196,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           event_date: string
           flavour: string
           id?: string
@@ -216,6 +218,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           event_date?: string
           flavour?: string
           id?: string

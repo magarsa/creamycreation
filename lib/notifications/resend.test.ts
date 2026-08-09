@@ -4,6 +4,7 @@ import { sendBakerNotification, type BakerNotification } from "./resend";
 const n: BakerNotification = {
   inquiryId: "inq-1",
   preferredName: "Sam",
+  email: "sam@example.com",
   eventDate: "2026-09-01",
   occasion: "birthday",
   size: "Dozen cupcakes",
@@ -32,6 +33,15 @@ describe("sendBakerNotification", () => {
     const result = await sendBakerNotification(n);
     expect(result.ok).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("includes the customer's email in the notification body", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendBakerNotification(n);
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.html).toContain("sam@example.com");
   });
 
   it("sends once, no cc, when BAKERY_BACKUP_EMAIL is unset", async () => {

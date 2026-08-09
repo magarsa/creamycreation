@@ -22,6 +22,7 @@ export interface OrderDraft {
   style_tag?: string;
   photo_paths: string[];
   preferred_name?: string;
+  email?: string;
   ig_handle?: string;
 }
 

@@ -68,6 +68,10 @@ export const inquirySubmissionSchema = z.object({
   size: z.enum(SIZES),
   flavour: z.enum(FLAVOURS),
   preferred_name: z.string().trim().min(1, "Tell me your name").max(120),
+  // Required, unlike ig_handle: it's the fallback that works even if the
+  // customer never completes the Instagram DM handoff (Instagram's messaging
+  // rules don't let the baker message first) — see lib/notifications/resend.ts.
+  email: z.email("Enter a valid email").trim().max(254),
   message: z.preprocess(
     emptyToUndefined,
     z.string().trim().max(MAX_MESSAGE_LENGTH).optional(),

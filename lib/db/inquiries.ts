@@ -32,6 +32,7 @@ export async function createInquiry(
       reference_link: sub.reference_link ?? null,
       style_tag: sub.style_tag ?? null,
       preferred_name: sub.preferred_name,
+      email: sub.email,
       ig_handle: sub.ig_handle ?? null,
       idempotency_key: sub.idempotency_key,
     })

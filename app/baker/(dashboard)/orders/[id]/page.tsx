@@ -91,6 +91,11 @@ export default async function OrderDetailPage({
 
       {/* Details */}
       <section className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
+        <Row
+          label="Email"
+          value={inquiry.email || "—"}
+          href={inquiry.email ? `mailto:${inquiry.email}` : undefined}
+        />
         <Row label="Date" value={formatEventDate(inquiry.event_date)} />
         <Row label="Occasion" value={OCCASION_LABELS[inquiry.occasion]} />
         <Row label="Size" value={inquiry.size} />

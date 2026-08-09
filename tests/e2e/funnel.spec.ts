@@ -42,13 +42,15 @@ test("order funnel: home → date → details → review → sent", async ({ pag
   ).toBeVisible();
   await page.getByRole("button", { name: "Review" }).click();
 
-  // Review — summary reflects the choices; Send gated until a name is entered.
+  // Review — summary reflects the choices; Send gated until name + email are entered.
   await expect(page.getByRole("heading", { name: "Before sending" })).toBeVisible();
   await expect(page.getByText("Birthday")).toBeVisible();
   await expect(page.getByText("Dozen cupcakes")).toBeVisible();
   await expect(page.getByText("Chocolate")).toBeVisible();
   await expect(page.getByRole("button", { name: /Send in a DM/i })).toBeDisabled();
   await page.getByPlaceholder(/who I'm talking to/i).fill("E2E Tester");
+  await expect(page.getByRole("button", { name: /Send in a DM/i })).toBeDisabled();
+  await page.getByPlaceholder(/reach you if the DM/i).fill("e2e@example.com");
   await expect(page.getByRole("button", { name: /Send in a DM/i })).toBeEnabled();
 
   // Mock the submit so there's no DB write, then send.
