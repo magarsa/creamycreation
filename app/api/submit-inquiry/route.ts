@@ -61,6 +61,9 @@ export async function POST(req: Request) {
     const notif = await sendBakerNotification({
       inquiryId: inquiry.id,
       preferredName: inquiry.preferred_name,
+      // The DB column is nullable only for pre-migration rows; the Zod schema
+      // guarantees sub.email on every new submission, so this always exists here.
+      email: inquiry.email ?? "",
       eventDate: inquiry.event_date,
       occasion: inquiry.occasion,
       size: inquiry.size,

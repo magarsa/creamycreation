@@ -17,12 +17,17 @@ export default function ReviewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Light client-side gate only — the Zod schema on the server is the
+  // authoritative validator. This just avoids a pointless round-trip for an
+  // obviously-empty or obviously-not-an-email value.
+  const emailLooksValid = /^\S+@\S+\.\S+$/.test(draft.email?.trim() ?? "");
   const missing =
     !draft.event_date ||
     !draft.occasion ||
     !draft.size ||
     !draft.flavour ||
-    !draft.preferred_name?.trim();
+    !draft.preferred_name?.trim() ||
+    !emailLooksValid;
 
   async function submit() {
     if (missing) return;
@@ -42,6 +47,7 @@ export default function ReviewPage() {
           reference_link: draft.reference_link ?? "",
           style_tag: draft.style_tag ?? "",
           preferred_name: draft.preferred_name ?? "",
+          email: draft.email ?? "",
           ig_handle: draft.ig_handle ?? "",
           photo_paths: draft.photo_paths,
           idempotency_key: idempotencyKey,
@@ -116,6 +122,20 @@ export default function ReviewPage() {
             value={draft.preferred_name ?? ""}
             onChange={(e) => update({ preferred_name: e.target.value })}
             placeholder="So I know who I'm talking to"
+            className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+            Email
+          </label>
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={draft.email ?? ""}
+            onChange={(e) => update({ email: e.target.value })}
+            placeholder="So I can reach you if the DM doesn't go through"
             className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
           />
         </div>

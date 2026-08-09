@@ -18,6 +18,7 @@ import { escapeHtml, sendEmail } from "./email";
 export interface BakerNotification {
   inquiryId: string;
   preferredName: string;
+  email: string;
   eventDate: string;
   occasion: Category;
   size: string;
@@ -40,6 +41,7 @@ export async function sendBakerNotification(
 
   const rows: Array<[string, string | undefined]> = [
     ["Name", n.preferredName],
+    ["Email", n.email],
     ["Date", n.eventDate],
     ["Occasion", OCCASION_LABELS[n.occasion]],
     ["Size", n.size],

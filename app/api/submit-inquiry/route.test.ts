@@ -28,6 +28,7 @@ const validBody = {
   size: "Dozen cupcakes",
   flavour: "Chocolate",
   preferred_name: "Sam",
+  email: "sam@example.com",
   idempotency_key: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
 };
 
@@ -38,6 +39,7 @@ const fakeInquiry: Inquiry = {
   size: "Dozen cupcakes",
   flavour: "Chocolate",
   preferred_name: "Sam",
+  email: "sam@example.com",
   ig_handle: null,
   message: null,
   notes: null,
@@ -133,6 +135,20 @@ describe("POST /api/submit-inquiry", () => {
     const res = await POST(post(validBody));
     expect(res.status).toBe(422);
     expect((await res.json()).issues.event_date).toBeDefined();
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("rejects a missing email", async () => {
+    const { email: _omit, ...rest } = validBody;
+    void _omit;
+    const res = await POST(post(rest));
+    expect(res.status).toBe(422);
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("rejects a malformed email", async () => {
+    const res = await POST(post({ ...validBody, email: "not-an-email" }));
+    expect(res.status).toBe(422);
     expect(createInquiry).not.toHaveBeenCalled();
   });
 

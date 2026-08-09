@@ -7,6 +7,7 @@ const valid = {
   size: '6" round · serves 8–10',
   flavour: "Vanilla bean",
   preferred_name: "Sam",
+  email: "sam@example.com",
   idempotency_key: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
 };
 
@@ -21,6 +22,19 @@ describe("inquirySubmissionSchema", () => {
     const { preferred_name: _omit, ...rest } = valid;
     void _omit;
     expect(inquirySubmissionSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it("rejects a missing email — it's the fallback contact, not optional like ig_handle", () => {
+    const { email: _omit, ...rest } = valid;
+    void _omit;
+    expect(inquirySubmissionSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it("rejects a malformed email", () => {
+    expect(
+      inquirySubmissionSchema.safeParse({ ...valid, email: "not-an-email" })
+        .success,
+    ).toBe(false);
   });
 
   it("rejects an occasion outside the category enum", () => {
