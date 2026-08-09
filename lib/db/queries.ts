@@ -3,6 +3,7 @@ import type { Tables } from "./types";
 
 export type Cake = Tables<"cakes">;
 export type Config = Tables<"config">;
+export type IgMedia = Tables<"ig_media">;
 
 /*
  * Public read queries. These run at build time (SSG/ISR) and at request time, so
@@ -72,6 +73,24 @@ export async function getBlockedDates(
     return (data ?? []).map((row) => row.blocked_date);
   } catch (err) {
     console.warn("getBlockedDates failed; returning []:", errMessage(err));
+    return [];
+  }
+}
+
+/** Visible IG posts, newest first, for the gallery. Hidden ones never leave
+ * the database via this path — RLS filters them at the row level, not here. */
+export async function getVisibleIgMedia(limit = 25): Promise<IgMedia[]> {
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("ig_media")
+      .select("*")
+      .order("posted_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    console.warn("getVisibleIgMedia failed; returning []:", errMessage(err));
     return [];
   }
 }

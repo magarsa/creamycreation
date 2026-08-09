@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { requireBaker } from "@/lib/auth";
 import { Button } from "@/lib/ui/button";
-import { updateConfig } from "./actions";
+import { updateConfig, toggleIgMedia } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +10,14 @@ const inputClass =
 
 export default async function SettingsPage() {
   const { supabase } = await requireBaker();
-  const { data: config } = await supabase
-    .from("config")
-    .select("*")
-    .limit(1)
-    .single();
+  const [{ data: config }, { data: igMedia }] = await Promise.all([
+    supabase.from("config").select("*").limit(1).single(),
+    supabase
+      .from("ig_media")
+      .select("id, caption, thumbnail_url, media_url, permalink, is_hidden, posted_at")
+      .order("posted_at", { ascending: false })
+      .limit(25),
+  ]);
 
   if (!config) {
     return (
@@ -88,7 +91,72 @@ export default async function SettingsPage() {
           Save settings
         </Button>
       </form>
+
+      <IgMediaSection igMedia={igMedia ?? []} />
     </main>
+  );
+}
+
+type IgMediaRow = {
+  id: string;
+  caption: string | null;
+  thumbnail_url: string | null;
+  media_url: string;
+  permalink: string;
+  is_hidden: boolean;
+  posted_at: string;
+};
+
+/** Recent Instagram posts, with a hide/unhide toggle for the public gallery.
+ * Nothing to show until the account is connected and has synced at least
+ * once (docs/instagram-setup.md) — that's a quiet empty state, not an error. */
+function IgMediaSection({ igMedia }: { igMedia: IgMediaRow[] }) {
+  return (
+    <section className="flex flex-col gap-3 border-t border-hairline pt-6">
+      <div className="flex flex-col gap-0.5">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+          Instagram posts
+        </h2>
+        <p className="text-[12px] text-muted">
+          Hide a post to pull it from the public gallery without touching
+          Instagram.
+        </p>
+      </div>
+
+      {igMedia.length === 0 ? (
+        <p className="text-sm text-muted">
+          Nothing synced yet. See docs/instagram-setup.md to connect an
+          account.
+        </p>
+      ) : (
+        <ul className="grid grid-cols-3 gap-2">
+          {igMedia.map((m) => (
+            <li key={m.id} className="relative">
+              <a href={m.permalink} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element -- external Instagram CDN URL */}
+                <img
+                  src={m.thumbnail_url ?? m.media_url}
+                  alt={m.caption ?? "Instagram post"}
+                  className="aspect-square w-full rounded-[var(--radius-control)] object-cover"
+                  style={m.is_hidden ? { opacity: 0.4 } : undefined}
+                  loading="lazy"
+                />
+              </a>
+              <form action={toggleIgMedia} className="absolute right-1 top-1">
+                <input type="hidden" name="id" value={m.id} />
+                <input type="hidden" name="hidden" value={String(m.is_hidden)} />
+                <button
+                  type="submit"
+                  className="rounded-full bg-ink/80 px-2 py-0.5 text-[11px] font-medium text-white"
+                >
+                  {m.is_hidden ? "Show" : "Hide"}
+                </button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

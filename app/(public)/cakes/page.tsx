@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { GalleryGrid } from "@/lib/ui/gallery-grid";
-import { getActiveCakes } from "@/lib/db/queries";
+import { getActiveCakes, getVisibleIgMedia } from "@/lib/db/queries";
 import { bakeryIdentity } from "@/lib/bakery";
+import { mergeGalleryItems } from "@/lib/domain/ig-media";
 
 export const revalidate = 3600;
 
@@ -15,7 +16,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GalleryPage() {
-  const cakes = await getActiveCakes();
+  const [cakes, igMedia] = await Promise.all([getActiveCakes(), getVisibleIgMedia()]);
+  const items = mergeGalleryItems(
+    cakes,
+    igMedia.map((m) => ({
+      id: m.id,
+      caption: m.caption,
+      permalink: m.permalink,
+      mediaUrl: m.media_url,
+      thumbnailUrl: m.thumbnail_url,
+      postedAt: m.posted_at,
+    })),
+  );
 
   return (
     <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] pb-16 pt-2">
@@ -26,8 +38,8 @@ export default async function GalleryPage() {
         </p>
       </div>
 
-      {cakes.length > 0 ? (
-        <GalleryGrid cakes={cakes} />
+      {items.length > 0 ? (
+        <GalleryGrid items={items} />
       ) : (
         <p className="text-sm text-muted">New cakes coming soon.</p>
       )}

@@ -14,6 +14,11 @@ export interface CronEnv {
   // Calendar (secret — a published ICS URL is unguessable-by-design, not public)
   BAKERY_ICS_URL?: string;
 
+  // Instagram (Phase 4). Both secret: the token is a bearer credential, and the
+  // numeric IG user id is only meaningful paired with it.
+  IG_LONG_LIVED_TOKEN?: string;
+  BAKERY_IG_USER_ID?: string;
+
   // Identity
   BAKERY_TIMEZONE?: string;
   BAKERY_PRIMARY_EMAIL?: string;

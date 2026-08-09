@@ -129,6 +129,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ig_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          ig_media_id: string
+          is_hidden: boolean
+          media_type: string
+          media_url: string
+          permalink: string
+          posted_at: string
+          synced_at: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          ig_media_id: string
+          is_hidden?: boolean
+          media_type: string
+          media_url: string
+          permalink: string
+          posted_at: string
+          synced_at?: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          ig_media_id?: string
+          is_hidden?: boolean
+          media_type?: string
+          media_url?: string
+          permalink?: string
+          posted_at?: string
+          synced_at?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           created_at: string

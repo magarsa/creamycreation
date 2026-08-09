@@ -31,3 +31,14 @@ export async function updateConfig(formData: FormData) {
   revalidatePath("/baker/settings");
   revalidatePath("/order/date");
 }
+
+export async function toggleIgMedia(formData: FormData) {
+  const id = String(formData.get("id"));
+  const hidden = formData.get("hidden") === "true";
+  const supabase = await createClient();
+  // RLS narrows this to the is_hidden column only (migration 0005) — even a
+  // hand-crafted request from this same session can't touch caption/media_url.
+  await supabase.from("ig_media").update({ is_hidden: !hidden }).eq("id", id);
+  revalidatePath("/baker/settings");
+  revalidatePath("/cakes");
+}
