@@ -26,7 +26,7 @@ export default async function DatePage() {
   if (config?.vacation_mode) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-4 px-[var(--screen-pad)] py-16 text-center">
-        <h1 className="text-2xl font-bold tracking-[-0.02em]">
+        <h1 className="font-display text-[26px] italic font-semibold">
           Away right now
         </h1>
         <p className="max-w-xs text-[15px] leading-relaxed text-muted">
@@ -35,8 +35,8 @@ export default async function DatePage() {
         </p>
         <Link
           href="/cakes"
-          className="text-sm font-medium"
-          style={{ color: "var(--coral-fg)" }}
+          className="text-sm font-semibold"
+          style={{ color: "var(--wine-fg)" }}
         >
           See the cakes →
         </Link>

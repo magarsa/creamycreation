@@ -6,9 +6,11 @@ import { useOrder } from "@/lib/order/context";
 import { MAX_REFERENCE_PHOTOS, STYLE_TAGS } from "@/lib/domain/order";
 import { createClient } from "@/lib/db/client";
 import { Button } from "@/lib/ui/button";
-import { ChoiceChip } from "@/lib/ui/choice-chip";
+import { OptionRow } from "@/lib/ui/option-row";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB guard
+const inputClass =
+  "w-full border-0 border-b border-hairline bg-transparent px-0 py-2 text-sm outline-none placeholder:text-muted focus:border-ink";
 
 interface Photo {
   path: string;
@@ -61,23 +63,25 @@ export default function ReferencesPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-2">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-[-0.02em]">
-          Show me what you&rsquo;re picturing
+    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-6">
+      <div>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          Optional
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          Anything to picture it by?
         </h1>
-        <p className="text-[13px] text-muted">All optional — whatever helps.</p>
       </div>
 
       <section className="flex flex-col gap-2.5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
           Reference photos
         </h2>
         <div className="grid grid-cols-3 gap-2">
           {photos.map((p) => (
             <div
               key={p.path}
-              className="relative aspect-square overflow-hidden rounded-[var(--radius-control)] bg-placeholder"
+              className="relative aspect-square overflow-hidden bg-placeholder"
             >
               {p.preview ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -95,7 +99,7 @@ export default function ReferencesPage() {
                 type="button"
                 onClick={() => remove(p.path)}
                 aria-label="Remove photo"
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[11px] text-white"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center bg-ink/80 text-[11px] text-white"
               >
                 ✕
               </button>
@@ -106,7 +110,7 @@ export default function ReferencesPage() {
               type="button"
               onClick={() => fileInput.current?.click()}
               disabled={uploading}
-              className="flex aspect-square items-center justify-center rounded-[var(--radius-control)] border border-dashed border-hairline text-xs text-muted hover:bg-black/[0.02] disabled:opacity-50"
+              className="flex aspect-square items-center justify-center border border-dashed border-hairline text-xs text-muted hover:bg-black/[0.02] disabled:opacity-50"
             >
               {uploading ? "…" : "+ Add"}
             </button>
@@ -128,7 +132,7 @@ export default function ReferencesPage() {
       </section>
 
       <section className="flex flex-col gap-2.5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
           Or paste a link
         </h2>
         <input
@@ -137,30 +141,28 @@ export default function ReferencesPage() {
           value={draft.reference_link ?? ""}
           onChange={(e) => update({ reference_link: e.target.value })}
           placeholder="Pinterest or Instagram URL"
-          className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+          className={inputClass}
         />
       </section>
 
       <section className="flex flex-col gap-2.5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
           Style, in a word
         </h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col">
           {STYLE_TAGS.map((t) => (
-            <ChoiceChip
+            <OptionRow
               key={t}
               selected={draft.style_tag === t}
-              onClick={() =>
-                update({ style_tag: draft.style_tag === t ? undefined : t })
-              }
+              onClick={() => update({ style_tag: draft.style_tag === t ? undefined : t })}
             >
               {t}
-            </ChoiceChip>
+            </OptionRow>
           ))}
         </div>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-screen/95 px-[var(--screen-pad)] py-3 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-paper/95 px-[var(--screen-pad)] py-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-[13px] text-muted">
             {photos.length} {photos.length === 1 ? "photo" : "photos"} added

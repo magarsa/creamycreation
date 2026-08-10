@@ -13,8 +13,8 @@ test("order funnel: home → date → details → review → sent", async ({ pag
   ).toBeVisible();
 
   // Home → date
-  await page.getByRole("link", { name: /Check availability/i }).click();
-  await expect(page.getByRole("heading", { name: "Pick a date" })).toBeVisible();
+  await page.getByRole("link", { name: /Check a date/i }).click();
+  await expect(page.getByRole("heading", { name: /When.s it for\?/ })).toBeVisible();
 
   // The Continue button is gated until a date is chosen.
   await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
@@ -28,7 +28,7 @@ test("order funnel: home → date → details → review → sent", async ({ pag
   await page.getByRole("button", { name: "Continue" }).click();
 
   // Details — Next gated until occasion + size + flavour are chosen.
-  await expect(page.getByRole("heading", { name: "Tell me about it" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What kind of cake?" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Birthday" }).click();
   await page.getByRole("button", { name: /Dozen cupcakes/ }).click();
@@ -38,12 +38,12 @@ test("order funnel: home → date → details → review → sent", async ({ pag
 
   // References — all optional; skip straight to review.
   await expect(
-    page.getByRole("heading", { name: /Show me what/i }),
+    page.getByRole("heading", { name: /Anything to picture it by/i }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Review" }).click();
 
   // Review — summary reflects the choices; Send gated until name + email are entered.
-  await expect(page.getByRole("heading", { name: "Before sending" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Before it sends" })).toBeVisible();
   await expect(page.getByText("Birthday")).toBeVisible();
   await expect(page.getByText("Dozen cupcakes")).toBeVisible();
   await expect(page.getByText("Chocolate")).toBeVisible();

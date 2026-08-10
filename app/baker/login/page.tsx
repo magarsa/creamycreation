@@ -47,7 +47,12 @@ function LoginForm() {
   return (
     <main className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col justify-center gap-6 px-[var(--screen-pad)] py-16">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-[-0.02em]">Baker sign in</h1>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          Baker
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          Sign in
+        </h1>
         <p className="text-[14px] text-muted">
           Enter your email and I&rsquo;ll send a magic link. Only the bakery
           owner can get in.
@@ -86,7 +91,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+            className="w-full border-0 border-b border-hairline bg-transparent px-0 py-2 text-sm outline-none placeholder:text-muted focus:border-ink"
           />
           <Button
             className="w-full"

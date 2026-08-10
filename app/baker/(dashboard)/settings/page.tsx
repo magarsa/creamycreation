@@ -43,7 +43,7 @@ export default async function SettingsPage() {
             type="checkbox"
             name="vacation_mode"
             defaultChecked={config.vacation_mode}
-            className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--violet-solid)]"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--wine-solid)]"
           />
         </label>
 

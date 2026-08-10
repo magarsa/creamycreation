@@ -29,7 +29,14 @@ export default function FaqPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] pb-16 pt-2">
-      <h1 className="text-2xl font-bold tracking-[-0.02em]">Good to know</h1>
+      <div>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          Before you ask
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          Good to know
+        </h1>
+      </div>
       <FaqAccordion faqs={faqs} />
     </main>
   );

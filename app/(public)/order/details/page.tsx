@@ -10,9 +10,10 @@ import {
   SIZES,
 } from "@/lib/domain/order";
 import { Button } from "@/lib/ui/button";
-import { Chip } from "@/lib/ui/chip";
-import { ChoiceChip } from "@/lib/ui/choice-chip";
-import { cn } from "@/lib/ui/cn";
+import { OptionRow } from "@/lib/ui/option-row";
+
+const inputClass =
+  "w-full border-0 border-b border-hairline bg-transparent px-0 py-2 text-sm outline-none placeholder:text-muted focus:border-ink";
 
 export default function DetailsPage() {
   const { draft, update } = useOrder();
@@ -21,83 +22,50 @@ export default function DetailsPage() {
   const ready = Boolean(draft.occasion && draft.size && draft.flavour);
 
   return (
-    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-2">
-      <h1 className="text-2xl font-bold tracking-[-0.02em]">Tell me about it</h1>
+    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-6">
+      <div>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          The order
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          What kind of cake?
+        </h1>
+      </div>
 
       <Field label="Occasion">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col">
           {CATEGORIES.map((c) => (
-            <button
+            <OptionRow
               key={c}
-              type="button"
+              selected={draft.occasion === c}
               onClick={() => update({ occasion: c })}
-              aria-pressed={draft.occasion === c}
-              className={cn(
-                "rounded-[var(--radius-pill)] transition-opacity",
-                draft.occasion === c
-                  ? "opacity-100 ring-1 ring-black/10"
-                  : "opacity-55 hover:opacity-80",
-              )}
             >
-              <Chip variant={`category-${c}`}>{OCCASION_LABELS[c]}</Chip>
-            </button>
+              {OCCASION_LABELS[c]}
+            </OptionRow>
           ))}
         </div>
       </Field>
 
       <Field label="Size">
-        <div className="flex flex-col gap-2">
-          {SIZES.map((s) => {
-            const selected = draft.size === s;
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => update({ size: s })}
-                className={cn(
-                  "flex items-center gap-3 rounded-[var(--radius-card)] border px-3 py-2.5 text-left text-sm transition-colors",
-                  !selected && "border-hairline",
-                )}
-                style={
-                  selected
-                    ? {
-                        background: "var(--violet-bg)",
-                        color: "var(--violet-fg)",
-                        borderColor: "var(--violet-border)",
-                      }
-                    : undefined
-                }
-              >
-                <span
-                  className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                    selected ? "border-transparent" : "border-hairline",
-                  )}
-                  style={
-                    selected ? { background: "var(--violet-solid)" } : undefined
-                  }
-                >
-                  {selected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                  )}
-                </span>
-                {s}
-              </button>
-            );
-          })}
+        <div className="flex flex-col">
+          {SIZES.map((s) => (
+            <OptionRow key={s} selected={draft.size === s} onClick={() => update({ size: s })}>
+              {s}
+            </OptionRow>
+          ))}
         </div>
       </Field>
 
       <Field label="Flavour">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col">
           {FLAVOURS.map((f) => (
-            <ChoiceChip
+            <OptionRow
               key={f}
               selected={draft.flavour === f}
               onClick={() => update({ flavour: f })}
             >
               {f}
-            </ChoiceChip>
+            </OptionRow>
           ))}
         </div>
       </Field>
@@ -112,7 +80,7 @@ export default function DetailsPage() {
           value={draft.message ?? ""}
           onChange={(e) => update({ message: e.target.value })}
           placeholder="Happy Birthday, Mia!"
-          className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+          className={inputClass}
         />
       </Field>
 
@@ -122,11 +90,11 @@ export default function DetailsPage() {
           value={draft.notes ?? ""}
           onChange={(e) => update({ notes: e.target.value })}
           placeholder="Pastel colors, no nuts, buttercream not fondant."
-          className="w-full resize-none rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+          className={`${inputClass} resize-none`}
         />
       </Field>
 
-      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-screen/95 px-[var(--screen-pad)] py-3 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-paper/95 px-[var(--screen-pad)] py-3 backdrop-blur">
         {!ready && (
           <p className="mb-2 text-[13px]" style={{ color: "var(--coral-fg)" }}>
             Pick an occasion, size, and flavour so I know what to plan for.
@@ -154,9 +122,9 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-2.5">
+    <section className="flex flex-col gap-2">
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
           {label}
         </h2>
         {hint && <p className="text-[12px] text-muted">{hint}</p>}

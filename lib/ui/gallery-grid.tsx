@@ -9,9 +9,9 @@ import type { GalleryItem } from "@/lib/domain/ig-media";
 
 type Filter = Category | "all";
 
-// All=violet per the design; each category keeps its label-maker tint.
+// All=wine per the design; each category keeps its label-maker tint.
 const FILTER_VARIANT: Record<Filter, ChipVariant> = {
-  all: "violet",
+  all: "wine",
   birthday: "category-birthday",
   kids: "category-kids",
   anniversary: "category-anniversary",

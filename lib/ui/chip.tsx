@@ -3,12 +3,12 @@ import { cn } from "./cn";
 
 /*
  * Chip is the ONLY sanctioned way to apply state/category color (PLAN.md §6).
- * State variants (violet/coral/amber) each mean one thing; category variants
+ * State variants (wine/coral/amber) each mean one thing; category variants
  * are a separate label-maker system. Feature code passes a variant, never hex.
  */
 export type ChipVariant =
   // State
-  | "violet" // doing now
+  | "wine" // doing now
   | "coral" // needs attention
   | "amber" // done
   // Category
@@ -20,10 +20,10 @@ export type ChipVariant =
   | "category-just_because";
 
 const STYLES: Record<ChipVariant, CSSProperties> = {
-  violet: {
-    background: "var(--violet-bg)",
-    color: "var(--violet-fg)",
-    borderColor: "var(--violet-border)",
+  wine: {
+    background: "var(--wine-bg)",
+    color: "var(--wine-fg)",
+    borderColor: "var(--wine-border)",
   },
   coral: {
     background: "var(--coral-bg)",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Instrument_Sans } from "next/font/google";
+import { Instrument_Sans, Newsreader } from "next/font/google";
 import { bakeryIdentity } from "@/lib/bakery";
 import "./globals.css";
 
@@ -10,6 +10,16 @@ const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Display face — headlines only, always italic (the "order ticket" theme's one
+// typographic flourish, everything else stays in Instrument Sans).
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["italic"],
   display: "swap",
 });
 
@@ -25,7 +35,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={`${instrumentSans.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${instrumentSans.variable} ${newsreader.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

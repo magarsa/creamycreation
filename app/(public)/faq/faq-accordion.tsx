@@ -26,7 +26,7 @@ export function FaqAccordion({ faqs }: { faqs: Faq[] }) {
               <span className="text-sm font-medium">{item.q}</span>
               <span
                 className="shrink-0 text-lg leading-none"
-                style={{ color: isOpen ? "var(--violet-fg)" : "var(--muted)" }}
+                style={{ color: isOpen ? "var(--wine-fg)" : "var(--muted)" }}
               >
                 {isOpen ? "−" : "+"}
               </span>

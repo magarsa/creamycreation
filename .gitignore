@@ -165,3 +165,4 @@ cloudflare-env.d.ts
 # Next.js dev-generated agent guides
 /AGENTS.md
 /CLAUDE.md
+.gstack/
