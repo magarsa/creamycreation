@@ -25,7 +25,7 @@ export function BakerNav() {
               "flex-1 py-3 text-center text-[13px] font-medium",
               !active && "text-muted",
             )}
-            style={active ? { color: "var(--violet-fg)" } : undefined}
+            style={active ? { color: "var(--wine-fg)" } : undefined}
           >
             {t.label}
           </Link>

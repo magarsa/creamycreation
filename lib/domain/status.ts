@@ -13,12 +13,12 @@ export const STATUS_LABELS: Record<InquiryStatus, string> = {
 };
 
 // Colors follow the state-color rule (PLAN.md §6): coral = needs attention
-// (new), amber = done (confirmed/completed), violet = in progress (quoted),
+// (new), amber = done (confirmed/completed), wine = in progress (quoted),
 // neutral grey = parked (needs-quote/cancelled).
 export const STATUS_VARIANT: Record<InquiryStatus, ChipVariant> = {
   submitted: "coral",
   needs_quote: "category-just_because",
-  quoted: "violet",
+  quoted: "wine",
   confirmed: "amber",
   completed: "amber",
   cancelled: "category-just_because",

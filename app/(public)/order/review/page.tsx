@@ -10,6 +10,9 @@ import { formatEventDate } from "@/lib/order/format";
 import { RESULT_KEY, type OrderResult } from "@/lib/order/result";
 import { Button } from "@/lib/ui/button";
 
+const inputClass =
+  "w-full border-0 border-b border-hairline bg-transparent px-0 py-2 text-sm outline-none placeholder:text-muted focus:border-ink";
+
 export default function ReviewPage() {
   const { draft, update, reset } = useOrder();
   const router = useRouter();
@@ -86,10 +89,17 @@ export default function ReviewPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-6 px-[var(--screen-pad)] pb-32 pt-2">
-      <h1 className="text-2xl font-bold tracking-[-0.02em]">Before sending</h1>
+    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-6">
+      <div>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          Last look
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          Before it sends
+        </h1>
+      </div>
 
-      <div className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
+      <div className="flex flex-col divide-y divide-hairline border border-hairline">
         <Row label="Date" value={draft.event_date ? formatEventDate(draft.event_date) : "—"} href="/order/date" />
         <Row label="Occasion" value={draft.occasion ? OCCASION_LABELS[draft.occasion] : "—"} href="/order/details" />
         <Row label="Size" value={draft.size ?? "—"} href="/order/details" />
@@ -112,9 +122,9 @@ export default function ReviewPage() {
         />
       </div>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+      <section className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <label className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
             Your name
           </label>
           <input
@@ -122,11 +132,11 @@ export default function ReviewPage() {
             value={draft.preferred_name ?? ""}
             onChange={(e) => update({ preferred_name: e.target.value })}
             placeholder="So I know who I'm talking to"
-            className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+            className={inputClass}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <div className="flex flex-col gap-1">
+          <label className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
             Email
           </label>
           <input
@@ -136,11 +146,11 @@ export default function ReviewPage() {
             value={draft.email ?? ""}
             onChange={(e) => update({ email: e.target.value })}
             placeholder="So I can reach you if the DM doesn't go through"
-            className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+            className={inputClass}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <div className="flex flex-col gap-1">
+          <label className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
             Instagram handle <span className="normal-case text-muted">(optional)</span>
           </label>
           <input
@@ -148,19 +158,16 @@ export default function ReviewPage() {
             value={draft.ig_handle ?? ""}
             onChange={(e) => update({ ig_handle: e.target.value })}
             placeholder="@yourhandle — a backup way to reach you"
-            className="w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30"
+            className={inputClass}
           />
         </div>
       </section>
 
-      <div
-        className="rounded-[var(--radius-card)] px-4 py-3 text-[13px] leading-relaxed"
-        style={{ background: "var(--teal-bg)", color: "var(--teal-fg)" }}
-      >
+      <p className="text-[13px] leading-relaxed text-muted">
         Sending doesn&rsquo;t book the date — I confirm and quote by DM within a day.
-      </div>
+      </p>
 
-      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-screen/95 px-[var(--screen-pad)] py-3 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md border-t border-hairline bg-paper/95 px-[var(--screen-pad)] py-3 backdrop-blur">
         {(missing || error) && (
           <p className="mb-2 text-[13px]" style={{ color: "var(--coral-fg)" }}>
             {missing
@@ -192,15 +199,15 @@ function Row({
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
       <div className="flex min-w-0 flex-col">
-        <span className="text-[11px] uppercase tracking-[0.06em] text-muted">
+        <span className="text-[10.5px] uppercase tracking-[0.08em] text-muted">
           {label}
         </span>
         <span className="truncate text-sm">{value}</span>
       </div>
       <Link
         href={href}
-        className="shrink-0 text-[13px] font-medium"
-        style={{ color: "var(--violet-fg)" }}
+        className="shrink-0 text-[13px] font-semibold"
+        style={{ color: "var(--wine-fg)" }}
       >
         Edit
       </Link>

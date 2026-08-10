@@ -177,7 +177,7 @@ function Row({
           target="_blank"
           rel="noopener noreferrer"
           className="max-w-[60%] truncate text-right text-sm"
-          style={{ color: "var(--violet-fg)" }}
+          style={{ color: "var(--wine-fg)" }}
         >
           {value}
         </a>

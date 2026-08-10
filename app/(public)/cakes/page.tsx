@@ -32,10 +32,13 @@ export default async function GalleryPage() {
   return (
     <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] pb-16 pt-2">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-[-0.02em]">The cakes</h1>
-        <p className="text-[13px] text-muted">
-          A few recent bakes. Yours is made to order.
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          The gallery
         </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          A few recent bakes
+        </h1>
+        <p className="text-[13px] text-muted">Yours is made to order.</p>
       </div>
 
       {items.length > 0 ? (

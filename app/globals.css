@@ -2,67 +2,74 @@
 
 /*
  * Design tokens — scoped to Creamy Creation, not a generic kit.
- * See PLAN.md §6 for the rules. Color carries meaning:
- *   - the 3 STATE colors each have exactly one job (violet/coral/amber)
- *   - the CATEGORY colors are a separate label-maker system
+ * "The Order Ticket" theme: stark ink-on-cream, grounded in the bakery's own
+ * paperwork (order ticket, receipt, box label) rather than a generic warm-bakery
+ * palette. One accent color carries every interactive/"doing now" moment on the
+ * public site — wine, not the old violet — because a linear order flow doesn't
+ * need multi-state color the way the baker's dashboard does.
+ *
+ * Color still carries meaning (PLAN.md §6):
+ *   - the 3 STATE colors each have exactly one job (wine/coral/amber) — used on
+ *     the baker dashboard, where distinguishing order status at a glance is a
+ *     real operational need, not decoration
+ *   - the CATEGORY colors are a separate label-maker system, kept on the public
+ *     gallery (telling a wedding cake from a birthday cake at a glance is worth
+ *     the color); the order flow's own occasion picker goes monochrome instead,
+ *     matching the ticket system's one-accent rule for that specific screen
  * Feature code must never use raw hex — go through <Button>/<Chip> variants,
  * which read these variables.
  */
 :root {
   /* Base */
-  --ink: #191918; /* near-black, never pure black */
-  --paper: #edece8; /* off-white canvas */
+  --ink: #191713; /* warm near-black, never pure black */
+  --paper: #faf8f3; /* stark ivory canvas — the ticket's paper stock */
   --screen: #ffffff; /* screen/card surface */
-  --placeholder: #f1f0ee; /* image slot grey */
+  --placeholder: #ebe4d5; /* image slot — warm putty, not grey */
 
   /* Ink at reduced opacity (contrast floor ~0.55 for body copy) */
-  --muted: rgba(25, 25, 24, 0.6);
-  --muted-strong: rgba(25, 25, 24, 0.65);
-  --hairline: rgba(25, 25, 24, 0.12);
-  --hairline-strong: rgba(25, 25, 24, 0.18);
+  --muted: rgba(25, 23, 19, 0.62);
+  --muted-strong: rgba(25, 23, 19, 0.7);
+  --hairline: rgba(25, 23, 19, 0.16);
+  --hairline-strong: rgba(25, 23, 19, 0.26);
 
-  /* Chip tints are deepened a touch and every chip carries a color-matched
-   * border so it separates from the paper background (which the lightest tints
-   * otherwise blended into). */
+  /* STATE — "doing now" / the public site's one accent */
+  --wine-bg: #f0dcda;
+  --wine-fg: #7a2530;
+  --wine-border: rgba(122, 37, 48, 0.36);
+  --wine-solid: #7a2530;
 
-  /* STATE — "doing now" */
-  --violet-bg: #e6ddfa;
-  --violet-fg: #5b21b6;
-  --violet-border: #bda7ee;
-  --violet-solid: #7c3aed;
-
-  /* STATE — "needs attention" */
+  /* STATE — "needs attention" (baker dashboard) */
   --coral-bg: #fbd7cf;
   --coral-fg: #b0341f;
   --coral-border: rgba(176, 52, 31, 0.34);
 
-  /* STATE — "done" */
+  /* STATE — "done" (baker dashboard) */
   --amber-bg: #fbe7bf;
   --amber-fg: #8a5a0b;
   --amber-border: rgba(138, 90, 11, 0.32);
   --amber-solid: #f2c97a;
 
-  /* CATEGORY badges (separate system) */
+  /* CATEGORY badges (separate system, public gallery only) */
   --teal-bg: #cfe4de; /* wedding */
   --teal-fg: #2f6e63;
   --teal-border: rgba(47, 110, 99, 0.34);
   --indigo-bg: #d9e0fa; /* anniversary / cupcakes */
   --indigo-fg: #3e4fa0;
   --indigo-border: rgba(62, 79, 160, 0.34);
-  --neutral-bg: #e5e0d3; /* just because */
-  --neutral-fg: rgba(25, 25, 24, 0.6);
-  --neutral-border: rgba(25, 25, 24, 0.2);
+  --neutral-bg: #e8e1d0; /* just because */
+  --neutral-fg: rgba(25, 23, 19, 0.62);
+  --neutral-border: rgba(25, 23, 19, 0.2);
 
-  /* Radii */
-  --radius-control: 7px; /* buttons / inputs / cards */
-  --radius-card: 10px; /* larger cards */
-  --radius-pill: 16px; /* pill chips */
+  /* Radii — near-zero. A ticket has corners, not rounded-app corners. */
+  --radius-control: 2px; /* buttons / inputs / cards */
+  --radius-card: 2px; /* larger cards */
+  --radius-pill: 2px; /* "pill" in name only now — chips are ticket tags */
 
   /* Layout */
   --screen-pad: 22px;
 }
 
-/* Expose the core neutrals + font to Tailwind utilities (bg-paper, text-ink, …) */
+/* Expose the core neutrals + fonts to Tailwind utilities (bg-paper, text-ink, …) */
 @theme inline {
   --color-ink: var(--ink);
   --color-paper: var(--paper);
@@ -71,6 +78,7 @@
   --color-muted: var(--muted);
   --color-hairline: var(--hairline);
   --font-sans: var(--font-instrument-sans);
+  --font-display: var(--font-newsreader);
 }
 
 body {

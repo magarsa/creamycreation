@@ -17,10 +17,10 @@ describe("ui primitives", () => {
     expect(btn.className).toContain("border-hairline");
   });
 
-  it("applies the violet state style to a chip", () => {
-    render(<Chip variant="violet">Selected</Chip>);
+  it("applies the wine state style to a chip", () => {
+    render(<Chip variant="wine">Selected</Chip>);
     const chip = screen.getByText("Selected");
-    expect(chip.getAttribute("style")).toContain("--violet-bg");
+    expect(chip.getAttribute("style")).toContain("--wine-bg");
   });
 
   it("maps a category variant to its fixed color", () => {

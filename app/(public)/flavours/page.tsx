@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { FLAVOURS, SIZES } from "@/lib/domain/order";
-import { Chip } from "@/lib/ui/chip";
 import { bakeryIdentity } from "@/lib/bakery";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,10 +22,17 @@ export default function FlavoursPage() {
   const { location } = bakeryIdentity();
   return (
     <main className="flex flex-1 flex-col gap-8 px-[var(--screen-pad)] pb-16 pt-2">
-      <h1 className="text-2xl font-bold tracking-[-0.02em]">Flavours &amp; pricing</h1>
+      <div>
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
+          The menu
+        </p>
+        <h1 className="font-display text-[26px] italic font-semibold">
+          Flavours &amp; pricing
+        </h1>
+      </div>
 
       <Section title="Sizes">
-        <ul className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
+        <ul className="flex flex-col divide-y divide-hairline border border-hairline">
           {SIZES.map((s) => (
             <li key={s} className="px-4 py-3 text-sm">
               {s}
@@ -36,32 +42,29 @@ export default function FlavoursPage() {
       </Section>
 
       <Section title="Flavours">
-        <div className="flex flex-wrap gap-2">
+        <ul className="flex flex-col divide-y divide-hairline border border-hairline">
           {FLAVOURS.map((f) => (
-            <span
-              key={f}
-              className="rounded-[var(--radius-pill)] px-3 py-1 text-xs font-medium"
-              style={{ background: "var(--neutral-bg)", color: "var(--neutral-fg)" }}
-            >
+            <li key={f} className="px-4 py-3 text-sm">
               {f}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
       </Section>
 
       <Section title="Add-ons">
-        <ul className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
+        <ul className="flex flex-col divide-y divide-hairline border border-hairline">
           {ADDONS.map((a) => (
             <li
               key={a.name}
               className="flex items-center justify-between px-4 py-3 text-sm"
             >
               {a.name}
-              {a.included ? (
-                <Chip variant="amber">Included</Chip>
-              ) : (
-                <span className="text-[13px] text-muted">Quoted</span>
-              )}
+              <span
+                className="text-[11px] font-medium uppercase tracking-[0.04em]"
+                style={a.included ? { color: "var(--wine-fg)" } : undefined}
+              >
+                {a.included ? "Included" : "Quoted"}
+              </span>
             </li>
           ))}
         </ul>
@@ -84,7 +87,7 @@ function Section({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+      <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
         {title}
       </h2>
       {children}

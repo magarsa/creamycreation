@@ -49,24 +49,26 @@ export default function SentPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-6">
-      <div className="flex flex-col items-center gap-4 text-center">
+    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-10">
+      <div className="flex flex-col items-center gap-3 text-center">
         <span
-          className="flex h-14 w-14 items-center justify-center rounded-full text-2xl"
-          style={{ background: "var(--amber-bg)", color: "var(--amber-fg)" }}
+          className="flex h-11 w-11 items-center justify-center border text-lg"
+          style={{ borderColor: "var(--wine-fg)", color: "var(--wine-fg)" }}
         >
           ✓
         </span>
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold tracking-[-0.02em]">Request sent</h1>
-          <p className="text-[15px] leading-relaxed text-muted">
+          <h1 className="font-display text-[26px] italic font-semibold">
+            Request sent
+          </h1>
+          <p className="max-w-xs text-[15px] leading-relaxed text-muted">
             Finish in a DM and I&rsquo;ll reply within a day. Nothing is booked
             until I confirm and quote.
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
+      <div className="flex flex-col divide-y divide-hairline border border-hairline">
         <SummaryRow label="Date" value={formatEventDate(result.event_date)} />
         <SummaryRow label="Occasion" value={OCCASION_LABELS[result.occasion]} />
         <SummaryRow label="Size" value={result.size} />
@@ -75,32 +77,32 @@ export default function SentPage() {
       </div>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
           While you wait
         </h2>
         <ul className="flex flex-col gap-1.5">
           {TIPS.map((t) => (
             <li key={t} className="flex gap-2 text-[13px] text-muted">
-              <span style={{ color: "var(--coral-fg)" }}>→</span>
+              <span style={{ color: "var(--wine-fg)" }}>—</span>
               {t}
             </li>
           ))}
         </ul>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-md flex-col gap-2 border-t border-hairline bg-screen/95 px-[var(--screen-pad)] py-3 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-md flex-col gap-2 border-t border-hairline bg-paper/95 px-[var(--screen-pad)] py-3 backdrop-blur">
         <a
           href={result.ig_deep_link}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex w-full items-center justify-center rounded-[var(--radius-control)] bg-ink px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex w-full items-center justify-center bg-ink px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           Open the DM
         </a>
         <button
           type="button"
           onClick={copy}
-          className="inline-flex w-full items-center justify-center rounded-[var(--radius-control)] border border-hairline px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-black/[0.03]"
+          className="inline-flex w-full items-center justify-center border border-hairline px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-black/[0.03]"
         >
           {copied ? "Copied ✓" : "Copy details"}
         </button>
@@ -112,7 +114,7 @@ export default function SentPage() {
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
-      <span className="text-[11px] uppercase tracking-[0.06em] text-muted">
+      <span className="text-[10.5px] uppercase tracking-[0.08em] text-muted">
         {label}
       </span>
       <span className="text-sm">{value}</span>

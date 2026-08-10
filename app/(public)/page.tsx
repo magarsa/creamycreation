@@ -6,10 +6,10 @@ import { bakeryIdentity } from "@/lib/bakery";
 
 export const revalidate = 3600;
 
-const STEPS = [
-  { title: "Pick a date", body: "Choose an available pickup day, at least a week out." },
-  { title: "Tell me about it", body: "Occasion, size, flavour, and any inspiration." },
-  { title: "I reply in a day", body: "I confirm the details and send a quote by DM." },
+const STRIP = [
+  { num: "1", label: "Date" },
+  { num: "2", label: "Details" },
+  { num: "3", label: "DM & quote" },
 ];
 
 export default async function Home() {
@@ -18,75 +18,60 @@ export default async function Home() {
   const [taglineFirst, taglineSecond] = tagline.split(". ");
 
   return (
-    <main className="flex flex-1 flex-col gap-12 px-[var(--screen-pad)] pb-16 pt-4">
-      <header className="flex flex-col gap-4">
-        <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.03em]">
-          {taglineFirst}.
-          {taglineSecond && (
-            <>
-              <br />
-              {taglineSecond}
-            </>
-          )}
-        </h1>
-        <p className="text-[15px] leading-relaxed text-muted">
-          Custom cakes for birthdays, celebrations, and small weddings. Home
-          bakery in {location}. Pickup only, one week&rsquo;s notice.
-        </p>
-        <div className="flex flex-col items-start gap-3 pt-1">
+    <main className="flex flex-1 flex-col pb-16">
+      <header className="flex flex-col gap-5 px-[var(--screen-pad)] pt-8">
+        <div>
+          <h1 className="font-display text-[38px] italic font-semibold leading-[1.05] tracking-[-0.01em] text-balance">
+            {taglineFirst}.
+            {taglineSecond && (
+              <>
+                <br />
+                {taglineSecond}
+              </>
+            )}
+          </h1>
+          <div className="mt-4 h-[2px] w-11" style={{ background: "var(--wine-fg)" }} />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 pt-1">
           <Link href="/order/date" className="w-full">
-            <Button className="w-full">Check availability</Button>
-          </Link>
-          <Link
-            href="/cakes"
-            className="text-sm font-medium"
-            style={{ color: "var(--coral-fg)" }}
-          >
-            See the cakes →
+            <Button className="w-full">Check a date</Button>
           </Link>
         </div>
+        <p className="text-[11.5px] text-muted">
+          No account. No payment here. Custom cakes in {location}, pickup only.
+        </p>
       </header>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
-          How it works
-        </h2>
-        <ol className="flex flex-col gap-4">
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="flex gap-3">
-              <span
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                style={
-                  i === 0
-                    ? { background: "var(--violet-bg)", color: "var(--violet-fg)" }
-                    : { background: "var(--neutral-bg)", color: "var(--muted)" }
-                }
-              >
-                {i + 1}
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium">{step.title}</span>
-                <span className="text-[13px] leading-snug text-muted">
-                  {step.body}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <div className="mt-8 flex border-y border-hairline">
+        {STRIP.map((s) => (
+          <div
+            key={s.label}
+            className="flex-1 border-l border-hairline py-4 text-center first:border-l-0"
+          >
+            <div
+              className="font-display text-[20px] italic"
+              style={{ color: "var(--wine-fg)" }}
+            >
+              {s.num}
+            </div>
+            <div className="mt-1 text-[10.5px]">{s.label}</div>
+          </div>
+        ))}
+      </div>
 
       {cakes.length > 0 && (
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-3 px-[var(--screen-pad)] pt-8">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
-              Recent cakes
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.06em]">
+              Recent
             </h2>
             <Link
               href="/cakes"
-              className="text-[13px] font-medium"
-              style={{ color: "var(--coral-fg)" }}
+              className="text-[13px] font-semibold"
+              style={{ color: "var(--wine-fg)" }}
             >
-              All →
+              All cakes →
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -97,7 +82,7 @@ export default async function Home() {
         </section>
       )}
 
-      <footer className="flex gap-4 border-t border-hairline pt-6 text-[13px] text-muted">
+      <footer className="mt-10 flex gap-4 border-t border-hairline px-[var(--screen-pad)] pt-5 text-[12px] text-muted">
         <Link href="/flavours">Flavours &amp; pricing</Link>
         <Link href="/faq">Good to know</Link>
       </footer>
