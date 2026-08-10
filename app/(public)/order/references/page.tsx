@@ -63,7 +63,7 @@ export default function ReferencesPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] pb-32 pt-6">
+    <main className="flex flex-1 flex-col gap-8 px-[var(--screen-pad)] pb-32 pt-6">
       <div>
         <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
           Optional
@@ -131,7 +131,7 @@ export default function ReferencesPage() {
         )}
       </section>
 
-      <section className="flex flex-col gap-2.5 border-t border-hairline pt-6">
+      <section className="flex flex-col gap-2.5">
         <h2 className="text-[12px] font-bold uppercase tracking-[0.09em]">
           Or paste a link
         </h2>
@@ -145,7 +145,7 @@ export default function ReferencesPage() {
         />
       </section>
 
-      <section className="flex flex-col gap-2.5 border-t border-hairline pt-6">
+      <section className="flex flex-col gap-2.5">
         <h2 className="text-[12px] font-bold uppercase tracking-[0.09em]">
           Style, in a word
         </h2>
