@@ -22,7 +22,7 @@ export default function DetailsPage() {
   const ready = Boolean(draft.occasion && draft.size && draft.flavour);
 
   return (
-    <main className="flex flex-1 flex-col gap-7 px-[var(--screen-pad)] pb-32 pt-6">
+    <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] pb-32 pt-6">
       <div>
         <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--wine-fg)" }}>
           The order
@@ -122,9 +122,9 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col gap-2.5 border-t border-hairline pt-6 first:border-t-0 first:pt-0">
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
+        <h2 className="text-[12px] font-bold uppercase tracking-[0.09em]">
           {label}
         </h2>
         {hint && <p className="text-[12px] text-muted">{hint}</p>}
