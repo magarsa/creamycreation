@@ -24,7 +24,12 @@ export default async function DashboardLayout({
           </button>
         </form>
       </header>
-      <div className="flex flex-1 flex-col">{children}</div>
+      {/* pb clears the now-fixed BakerNav (fixed, not sticky, so it's
+          immune to mobile browsers' dynamic-toolbar viewport-height quirk —
+          sticky's position depended on this container reliably filling the
+          full viewport height, which mobile Safari/Chrome doesn't guarantee
+          on first paint before the address bar collapses). */}
+      <div className="flex flex-1 flex-col pb-20">{children}</div>
       <BakerNav />
     </div>
   );

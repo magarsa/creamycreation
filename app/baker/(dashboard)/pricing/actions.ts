@@ -26,6 +26,20 @@ export async function addSize(formData: FormData) {
   revalidatePricingPaths();
 }
 
+export async function updateSize(formData: FormData) {
+  const id = String(formData.get("id"));
+  const label = String(formData.get("label") ?? "").trim();
+  const priceCents = parseDollarsToCents(formData.get("base_price"));
+  if (!label || priceCents === null) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("sizes")
+    .update({ label, base_price_cents: priceCents })
+    .eq("id", id);
+  revalidatePricingPaths();
+}
+
 export async function toggleSize(formData: FormData) {
   const id = String(formData.get("id"));
   const active = formData.get("active") === "true";
@@ -51,6 +65,21 @@ export async function addAddon(formData: FormData) {
   await supabase
     .from("addons")
     .insert({ label, price_min_cents: minCents, price_max_cents: maxCents });
+  revalidatePricingPaths();
+}
+
+export async function updateAddon(formData: FormData) {
+  const id = String(formData.get("id"));
+  const label = String(formData.get("label") ?? "").trim();
+  const minCents = parseDollarsToCents(formData.get("price_min"));
+  const maxCents = parseDollarsToCents(formData.get("price_max"));
+  if (!label || minCents === null || maxCents === null || maxCents < minCents) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("addons")
+    .update({ label, price_min_cents: minCents, price_max_cents: maxCents })
+    .eq("id", id);
   revalidatePricingPaths();
 }
 

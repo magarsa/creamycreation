@@ -5,59 +5,42 @@ import { STATUS_LABELS, STATUS_VARIANT } from "@/lib/domain/status";
 import { formatEventDate } from "@/lib/order/format";
 import { Chip } from "@/lib/ui/chip";
 
-// Always fresh for the baker — never cache the order list.
 export const dynamic = "force-dynamic";
 
-export default async function OrdersPage() {
+// A generous cap, not real pagination — a one-person shop's lifetime archive
+// won't meaningfully exceed this for years, and if it ever does, the newest
+// entries (what you actually want to check) are still the ones shown.
+const ARCHIVE_LIMIT = 200;
+
+export default async function OrdersArchivePage() {
   const { supabase } = await requireBaker();
   const { data } = await supabase
     .from("inquiries")
     .select(
-      "id, preferred_name, occasion, event_date, size, flavour, status, notification_status, submitted_at",
+      "id, preferred_name, occasion, event_date, size, flavour, status, status_changed_at",
     )
-    // Completed/cancelled orders are done — they'd only ever grow this list
-    // over the shop's lifetime with nothing left to act on. See /baker/orders/archive.
-    .not("status", "in", "(completed,cancelled)")
-    .order("submitted_at", { ascending: false });
+    .in("status", ["completed", "cancelled"])
+    .order("status_changed_at", { ascending: false })
+    .limit(ARCHIVE_LIMIT);
 
   const list = data ?? [];
-  const newCount = list.filter((i) => i.status === "submitted").length;
-  const confirmedCount = list.filter((i) => i.status === "confirmed").length;
-  const failed = list.filter((i) => i.notification_status === "failed").length;
 
   return (
     <main className="flex flex-1 flex-col gap-5 px-[var(--screen-pad)] py-5">
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold tracking-[-0.02em]">Orders</h1>
-          <Link href="/baker/orders/archive" className="text-[13px] text-muted">
-            Archive →
+          <h1 className="text-2xl font-bold tracking-[-0.02em]">Archive</h1>
+          <Link href="/baker/orders" className="text-[13px] text-muted">
+            ← Orders
           </Link>
         </div>
         <p className="text-[13px] text-muted">
-          {list.length} active · {newCount} new · {confirmedCount} confirmed
+          Completed and cancelled orders. {list.length} shown.
         </p>
       </div>
 
-      {failed > 0 && (
-        <Link
-          href="/baker/notifications"
-          className="rounded-[var(--radius-card)] border px-4 py-2.5 text-[13px]"
-          style={{
-            background: "var(--coral-bg)",
-            color: "var(--coral-fg)",
-            borderColor: "var(--coral-border)",
-          }}
-        >
-          {failed} {failed === 1 ? "inquiry" : "inquiries"} didn&rsquo;t email
-          you — review →
-        </Link>
-      )}
-
       {list.length === 0 ? (
-        <p className="text-sm text-muted">
-          Nothing active right now — check the archive for past orders.
-        </p>
+        <p className="text-sm text-muted">Nothing archived yet.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-hairline rounded-[var(--radius-card)] border border-hairline">
           {list.map((i) => (

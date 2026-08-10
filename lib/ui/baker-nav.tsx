@@ -15,7 +15,7 @@ const TABS = [
 export function BakerNav() {
   const pathname = usePathname();
   return (
-    <nav className="sticky bottom-0 z-10 mx-auto flex w-full max-w-md border-t border-hairline bg-screen/95 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-md border-t border-hairline bg-screen/95 backdrop-blur">
       {TABS.map((t) => {
         const active = pathname.startsWith(t.href);
         return (

@@ -1,7 +1,6 @@
 import { requireBaker } from "@/lib/auth";
 import { Button } from "@/lib/ui/button";
 import { cn } from "@/lib/ui/cn";
-import { formatPriceRange } from "@/lib/domain/pricing";
 import {
   addAddon,
   addSize,
@@ -9,12 +8,22 @@ import {
   deleteSize,
   toggleAddon,
   toggleSize,
+  updateAddon,
+  updateSize,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 const inputClass =
   "w-full rounded-[var(--radius-control)] border border-hairline bg-screen px-3 py-2.5 text-sm outline-none focus:border-black/30";
+
+const smallButtonClass =
+  "shrink-0 rounded-[var(--radius-control)] border border-hairline px-3 py-1.5 text-xs font-medium hover:bg-black/[0.03]";
+
+/** Cents from the DB to a dollar string an <input type="number"> will accept. */
+function toDollarsInput(cents: number): string {
+  return (cents / 100).toFixed(2);
+}
 
 export default async function PricingPage() {
   const { supabase } = await requireBaker();
@@ -40,28 +49,35 @@ export default async function PricingPage() {
           {(sizes ?? []).map((s) => (
             <li
               key={s.id}
-              className={cn(
-                "flex items-center justify-between gap-3 px-4 py-3",
-                !s.is_active && "opacity-55",
-              )}
+              className={cn("flex flex-col gap-2 px-4 py-3", !s.is_active && "opacity-55")}
             >
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-sm font-medium">{s.label}</span>
-                <span className="text-[13px] text-muted">
-                  {formatPriceRange({
-                    minCents: s.base_price_cents,
-                    maxCents: s.base_price_cents,
-                  })}
-                </span>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <form action={updateSize} className="flex gap-2">
+                <input type="hidden" name="id" value={s.id} />
+                <input
+                  name="label"
+                  required
+                  defaultValue={s.label}
+                  className={cn(inputClass, "flex-1")}
+                />
+                <input
+                  name="base_price"
+                  required
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  defaultValue={toDollarsInput(s.base_price_cents)}
+                  className={cn(inputClass, "w-20")}
+                />
+                <button type="submit" className={smallButtonClass}>
+                  Save
+                </button>
+              </form>
+              <div className="flex gap-2">
                 <form action={toggleSize}>
                   <input type="hidden" name="id" value={s.id} />
                   <input type="hidden" name="active" value={String(s.is_active)} />
-                  <button
-                    type="submit"
-                    className="rounded-[var(--radius-control)] border border-hairline px-3 py-1.5 text-xs font-medium hover:bg-black/[0.03]"
-                  >
+                  <button type="submit" className={smallButtonClass}>
                     {s.is_active ? "Hide" : "Show"}
                   </button>
                 </form>
@@ -69,7 +85,7 @@ export default async function PricingPage() {
                   <input type="hidden" name="id" value={s.id} />
                   <button
                     type="submit"
-                    className="rounded-[var(--radius-control)] border border-hairline px-3 py-1.5 text-xs font-medium hover:bg-black/[0.03]"
+                    className={smallButtonClass}
                     style={{ color: "var(--coral-fg)" }}
                   >
                     Delete
@@ -109,28 +125,47 @@ export default async function PricingPage() {
           {(addons ?? []).map((a) => (
             <li
               key={a.id}
-              className={cn(
-                "flex items-center justify-between gap-3 px-4 py-3",
-                !a.is_active && "opacity-55",
-              )}
+              className={cn("flex flex-col gap-2 px-4 py-3", !a.is_active && "opacity-55")}
             >
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-sm font-medium">{a.label}</span>
-                <span className="text-[13px] text-muted">
-                  {formatPriceRange({
-                    minCents: a.price_min_cents,
-                    maxCents: a.price_max_cents,
-                  })}
-                </span>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <form action={updateAddon} className="flex flex-col gap-2">
+                <input type="hidden" name="id" value={a.id} />
+                <input
+                  name="label"
+                  required
+                  defaultValue={a.label}
+                  className={inputClass}
+                />
+                <div className="flex gap-2">
+                  <input
+                    name="price_min"
+                    required
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    defaultValue={toDollarsInput(a.price_min_cents)}
+                    className={cn(inputClass, "flex-1")}
+                  />
+                  <input
+                    name="price_max"
+                    required
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    defaultValue={toDollarsInput(a.price_max_cents)}
+                    className={cn(inputClass, "flex-1")}
+                  />
+                  <button type="submit" className={smallButtonClass}>
+                    Save
+                  </button>
+                </div>
+              </form>
+              <div className="flex gap-2">
                 <form action={toggleAddon}>
                   <input type="hidden" name="id" value={a.id} />
                   <input type="hidden" name="active" value={String(a.is_active)} />
-                  <button
-                    type="submit"
-                    className="rounded-[var(--radius-control)] border border-hairline px-3 py-1.5 text-xs font-medium hover:bg-black/[0.03]"
-                  >
+                  <button type="submit" className={smallButtonClass}>
                     {a.is_active ? "Hide" : "Show"}
                   </button>
                 </form>
@@ -138,7 +173,7 @@ export default async function PricingPage() {
                   <input type="hidden" name="id" value={a.id} />
                   <button
                     type="submit"
-                    className="rounded-[var(--radius-control)] border border-hairline px-3 py-1.5 text-xs font-medium hover:bg-black/[0.03]"
+                    className={smallButtonClass}
                     style={{ color: "var(--coral-fg)" }}
                   >
                     Delete
