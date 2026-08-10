@@ -8,6 +8,7 @@ const TABS = [
   { href: "/baker/orders", label: "Orders" },
   { href: "/baker/calendar", label: "Calendar" },
   { href: "/baker/cakes", label: "Cakes" },
+  { href: "/baker/pricing", label: "Pricing" },
   { href: "/baker/settings", label: "Settings" },
 ] as const;
 

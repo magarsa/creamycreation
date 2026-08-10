@@ -10,11 +10,43 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
+      addons: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          price_max_cents: number
+          price_min_cents: number
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          price_max_cents: number
+          price_min_cents: number
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          price_max_cents?: number
+          price_min_cents?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       bakers: {
         Row: {
           created_at: string
@@ -175,6 +207,8 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          estimated_price_max_cents: number | null
+          estimated_price_min_cents: number | null
           event_date: string
           flavour: string
           id: string
@@ -197,6 +231,8 @@ export type Database = {
         Insert: {
           created_at?: string
           email?: string | null
+          estimated_price_max_cents?: number | null
+          estimated_price_min_cents?: number | null
           event_date: string
           flavour: string
           id?: string
@@ -219,6 +255,8 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string | null
+          estimated_price_max_cents?: number | null
+          estimated_price_min_cents?: number | null
           event_date?: string
           flavour?: string
           id?: string
@@ -239,6 +277,51 @@ export type Database = {
           submitted_at?: string
         }
         Relationships: []
+      }
+      inquiry_addons: {
+        Row: {
+          addon_id: string | null
+          created_at: string
+          id: string
+          inquiry_id: string
+          label: string
+          price_max_cents: number
+          price_min_cents: number
+        }
+        Insert: {
+          addon_id?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          label: string
+          price_max_cents: number
+          price_min_cents: number
+        }
+        Update: {
+          addon_id?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          label?: string
+          price_max_cents?: number
+          price_min_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_addons_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiry_addons_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inquiry_photos: {
         Row: {
@@ -271,6 +354,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sizes: {
+        Row: {
+          base_price_cents: number
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+        }
+        Insert: {
+          base_price_cents: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+        }
+        Update: {
+          base_price_cents?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+        }
+        Relationships: []
       }
       sync_state: {
         Row: {

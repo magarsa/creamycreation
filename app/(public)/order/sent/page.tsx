@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OCCASION_LABELS } from "@/lib/domain/order";
+import { formatPriceRange } from "@/lib/domain/pricing";
 import { formatEventDate } from "@/lib/order/format";
 import { RESULT_KEY, type OrderResult } from "@/lib/order/result";
 
@@ -73,6 +74,16 @@ export default function SentPage() {
         <SummaryRow label="Occasion" value={OCCASION_LABELS[result.occasion]} />
         <SummaryRow label="Size" value={result.size} />
         <SummaryRow label="Flavour" value={result.flavour} />
+        {result.estimated_price_min_cents != null &&
+          result.estimated_price_max_cents != null && (
+            <SummaryRow
+              label="Estimate"
+              value={formatPriceRange({
+                minCents: result.estimated_price_min_cents,
+                maxCents: result.estimated_price_max_cents,
+              })}
+            />
+          )}
         <SummaryRow label="Pickup" value={PICKUP} />
       </div>
 

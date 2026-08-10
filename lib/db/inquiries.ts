@@ -1,6 +1,7 @@
 import { createAdminClient } from "./admin";
 import type { Tables } from "./types";
 import type { InquirySubmission } from "@/lib/domain/order";
+import type { PriceRange } from "@/lib/domain/pricing";
 
 export type Inquiry = Tables<"inquiries">;
 
@@ -9,14 +10,28 @@ export interface CreateInquiryResult {
   duplicate: boolean;
 }
 
+/** An add-on selected at submit time, snapshotted so later edits to the
+ * baker's `addons` table never rewrite what a customer actually saw. */
+export interface SelectedAddon {
+  addon_id: string;
+  label: string;
+  price_min_cents: number;
+  price_max_cents: number;
+}
+
 /*
  * Persist an inquiry using the service role (RLS-bypassing — anon cannot write).
  * Idempotent on `idempotency_key`: a repeated submit (double-tap, retry) returns
  * the original row instead of creating a duplicate. Reference photos, if any, are
  * moved from their pending upload location to a folder bound to the inquiry.
+ *
+ * `estimate`/`selectedAddons` are computed server-side by the caller (route.ts)
+ * from the live sizes/addons tables — never trust a client-sent price.
  */
 export async function createInquiry(
   sub: InquirySubmission,
+  estimate: PriceRange,
+  selectedAddons: SelectedAddon[],
 ): Promise<CreateInquiryResult> {
   const admin = createAdminClient();
 
@@ -35,6 +50,8 @@ export async function createInquiry(
       email: sub.email,
       ig_handle: sub.ig_handle ?? null,
       idempotency_key: sub.idempotency_key,
+      estimated_price_min_cents: estimate.minCents,
+      estimated_price_max_cents: estimate.maxCents,
     })
     .select()
     .single();
@@ -57,6 +74,12 @@ export async function createInquiry(
 
   if (sub.photo_paths && sub.photo_paths.length > 0) {
     await bindPhotos(admin, inquiry.id, sub.photo_paths);
+  }
+
+  if (selectedAddons.length > 0) {
+    await admin.from("inquiry_addons").insert(
+      selectedAddons.map((a) => ({ inquiry_id: inquiry.id, ...a })),
+    );
   }
 
   return { inquiry, duplicate: false };

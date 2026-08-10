@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireBaker } from "@/lib/auth";
 import { OCCASION_LABELS } from "@/lib/domain/order";
+import { formatPriceRange } from "@/lib/domain/pricing";
 import {
   STATUS_FLOW,
   STATUS_LABELS,
@@ -33,6 +34,11 @@ export default async function OrderDetailPage({
     .select("storage_path")
     .eq("inquiry_id", id)
     .order("sort_order");
+
+  const { data: addonRows } = await supabase
+    .from("inquiry_addons")
+    .select("label, price_min_cents, price_max_cents")
+    .eq("inquiry_id", id);
 
   // Signed URLs for the private reference photos (baker-only).
   const photos: string[] = [];
@@ -99,6 +105,29 @@ export default async function OrderDetailPage({
         <Row label="Date" value={formatEventDate(inquiry.event_date)} />
         <Row label="Occasion" value={OCCASION_LABELS[inquiry.occasion]} />
         <Row label="Size" value={inquiry.size} />
+        <Row
+          label="Add-ons"
+          value={
+            addonRows && addonRows.length > 0
+              ? addonRows
+                  .map(
+                    (a) =>
+                      `${a.label} (${formatPriceRange({ minCents: a.price_min_cents, maxCents: a.price_max_cents })})`,
+                  )
+                  .join(", ")
+              : "None"
+          }
+        />
+        {inquiry.estimated_price_min_cents != null &&
+          inquiry.estimated_price_max_cents != null && (
+            <Row
+              label="Estimate shown"
+              value={formatPriceRange({
+                minCents: inquiry.estimated_price_min_cents,
+                maxCents: inquiry.estimated_price_max_cents,
+              })}
+            />
+          )}
         <Row label="Flavour" value={inquiry.flavour} />
         <Row label="Message" value={inquiry.message || "—"} />
         <Row label="Notes" value={inquiry.notes || "—"} />

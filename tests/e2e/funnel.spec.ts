@@ -32,6 +32,11 @@ test("order funnel: home → date → details → review → sent", async ({ pag
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Birthday" }).click();
   await page.getByRole("button", { name: /Dozen cupcakes/ }).click();
+  // Picking a size shows a live price estimate in the sticky footer (seeded
+  // "Dozen cupcakes" base price is $35).
+  await expect(page.getByText("Estimate")).toBeVisible();
+  // "$35" also appears inside the size option row itself; the footer total is last.
+  await expect(page.getByText("$35").last()).toBeVisible();
   await page.getByRole("button", { name: "Chocolate" }).click();
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Next", exact: true }).click();
@@ -45,8 +50,13 @@ test("order funnel: home → date → details → review → sent", async ({ pag
   // Review — summary reflects the choices; Send gated until name + email are entered.
   await expect(page.getByRole("heading", { name: "Before it sends" })).toBeVisible();
   await expect(page.getByText("Birthday")).toBeVisible();
-  await expect(page.getByText("Dozen cupcakes")).toBeVisible();
+  // "Dozen cupcakes" appears twice: the ticket summary row and the Estimate
+  // breakdown's size line.
+  await expect(page.getByText("Dozen cupcakes").first()).toBeVisible();
   await expect(page.getByText("Chocolate")).toBeVisible();
+  // The itemized Estimate breakdown, seeded to $35 for this size with no add-ons.
+  await expect(page.getByRole("heading", { name: "Estimate" })).toBeVisible();
+  await expect(page.getByText("Total")).toBeVisible();
   await expect(page.getByRole("button", { name: /Send in a DM/i })).toBeDisabled();
   await page.getByPlaceholder(/who I'm talking to/i).fill("E2E Tester");
   await expect(page.getByRole("button", { name: /Send in a DM/i })).toBeDisabled();

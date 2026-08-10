@@ -10,11 +10,18 @@ vi.mock("@/lib/notifications/resend", () => ({
 vi.mock("@/lib/db/queries", () => ({
   getPublicConfig: vi.fn(),
   getBlockedDates: vi.fn(),
+  getActiveSizes: vi.fn(),
+  getActiveAddons: vi.fn(),
 }));
 
 import { POST } from "./route";
 import { createInquiry, markNotification } from "@/lib/db/inquiries";
-import { getBlockedDates, getPublicConfig } from "@/lib/db/queries";
+import {
+  getActiveAddons,
+  getActiveSizes,
+  getBlockedDates,
+  getPublicConfig,
+} from "@/lib/db/queries";
 import { sendBakerNotification } from "@/lib/notifications/resend";
 import type { Inquiry } from "@/lib/db/inquiries";
 
@@ -53,7 +60,20 @@ const fakeInquiry: Inquiry = {
   idempotency_key: validBody.idempotency_key,
   submitted_at: "",
   created_at: "",
+  estimated_price_min_cents: 3500,
+  estimated_price_max_cents: 3500,
 };
+
+const activeSizes = [
+  {
+    id: "size-1",
+    label: "Dozen cupcakes",
+    base_price_cents: 3500,
+    is_active: true,
+    sort_order: 4,
+    created_at: "",
+  },
+];
 
 function post(body: unknown): Request {
   return new Request("http://localhost/api/submit-inquiry", {
@@ -71,6 +91,9 @@ describe("POST /api/submit-inquiry", () => {
     // Default: nothing blocked, no config row → the handler's own defaults apply.
     vi.mocked(getPublicConfig).mockResolvedValue(null);
     vi.mocked(getBlockedDates).mockResolvedValue([]);
+    // Default: the one size validBody submits is active; no add-ons offered.
+    vi.mocked(getActiveSizes).mockResolvedValue(activeSizes as never);
+    vi.mocked(getActiveAddons).mockResolvedValue([]);
   });
 
   afterEach(() => vi.useRealTimers());
@@ -136,6 +159,54 @@ describe("POST /api/submit-inquiry", () => {
     expect(res.status).toBe(422);
     expect((await res.json()).issues.event_date).toBeDefined();
     expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("rejects a size that's no longer active", async () => {
+    vi.mocked(getActiveSizes).mockResolvedValue([]);
+
+    const res = await POST(post(validBody));
+    expect(res.status).toBe(422);
+    expect((await res.json()).issues.size).toBeDefined();
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
+  it("computes the estimate from live size + add-on prices, not the client", async () => {
+    vi.mocked(getActiveAddons).mockResolvedValue([
+      {
+        id: "a1a2a3a4-0000-4000-8000-000000000001",
+        label: "Fresh flowers",
+        price_min_cents: 1000,
+        price_max_cents: 2500,
+        is_active: true,
+        sort_order: 0,
+        created_at: "",
+      },
+    ] as never);
+    vi.mocked(createInquiry).mockResolvedValue({
+      inquiry: fakeInquiry,
+      duplicate: false,
+    });
+    vi.mocked(sendBakerNotification).mockResolvedValue({ ok: true });
+
+    await POST(
+      post({
+        ...validBody,
+        addon_ids: ["a1a2a3a4-0000-4000-8000-000000000001"],
+      }),
+    );
+
+    expect(createInquiry).toHaveBeenCalledWith(
+      expect.objectContaining({ size: "Dozen cupcakes" }),
+      { minCents: 4500, maxCents: 6000 },
+      [
+        {
+          addon_id: "a1a2a3a4-0000-4000-8000-000000000001",
+          label: "Fresh flowers",
+          price_min_cents: 1000,
+          price_max_cents: 2500,
+        },
+      ],
+    );
   });
 
   it("rejects a missing email", async () => {

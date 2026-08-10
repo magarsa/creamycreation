@@ -4,6 +4,8 @@ import type { Tables } from "./types";
 export type Cake = Tables<"cakes">;
 export type Config = Tables<"config">;
 export type IgMedia = Tables<"ig_media">;
+export type Size = Tables<"sizes">;
+export type Addon = Tables<"addons">;
 
 /*
  * Public read queries. These run at build time (SSG/ISR) and at request time, so
@@ -91,6 +93,40 @@ export async function getVisibleIgMedia(limit = 25): Promise<IgMedia[]> {
     return data ?? [];
   } catch (err) {
     console.warn("getVisibleIgMedia failed; returning []:", errMessage(err));
+    return [];
+  }
+}
+
+/** Active sizes, baker-ordered, for the order flow and /flavours. */
+export async function getActiveSizes(): Promise<Size[]> {
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("sizes")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    console.warn("getActiveSizes failed; returning []:", errMessage(err));
+    return [];
+  }
+}
+
+/** Active add-ons, for the order flow and /flavours. */
+export async function getActiveAddons(): Promise<Addon[]> {
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("addons")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    console.warn("getActiveAddons failed; returning []:", errMessage(err));
     return [];
   }
 }

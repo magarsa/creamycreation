@@ -8,13 +8,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Category, Flavour, Size } from "@/lib/domain/order";
+import type { Category, Flavour } from "@/lib/domain/order";
 
 export interface OrderDraft {
   session_id: string; // for grouping pending photo uploads
   event_date?: string;
   occasion?: Category;
-  size?: Size;
+  size?: string;
+  addon_ids: string[];
   flavour?: Flavour;
   message?: string;
   notes?: string;
@@ -29,7 +30,7 @@ export interface OrderDraft {
 const STORAGE_KEY = "cc_order_draft";
 
 function emptyDraft(): OrderDraft {
-  return { session_id: crypto.randomUUID(), photo_paths: [] };
+  return { session_id: crypto.randomUUID(), photo_paths: [], addon_ids: [] };
 }
 
 interface OrderContextValue {
@@ -49,10 +50,14 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (raw) {
       try {
+        // A draft saved before addon_ids existed (pre-deploy tab left open)
+        // won't have it at runtime even though the type claims otherwise —
+        // default so .includes()/.map() calls don't throw.
+        const parsed = JSON.parse(raw) as Partial<OrderDraft>;
         // One-time hydration from client-only storage; both server and client
         // first render the empty draft, so there's no hydration mismatch.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setDraft(JSON.parse(raw) as OrderDraft);
+        setDraft((d) => ({ ...d, ...parsed, addon_ids: parsed.addon_ids ?? [] }));
       } catch {
         /* ignore corrupt draft */
       }

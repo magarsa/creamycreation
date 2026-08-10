@@ -10,4 +10,6 @@ export interface OrderResult {
   occasion: Category;
   size: string;
   flavour: string;
+  estimated_price_min_cents: number | null;
+  estimated_price_max_cents: number | null;
 }

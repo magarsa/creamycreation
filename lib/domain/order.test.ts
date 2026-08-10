@@ -44,10 +44,18 @@ describe("inquirySubmissionSchema", () => {
     ).toBe(false);
   });
 
-  it("rejects a size not on the offered list", () => {
+  it("rejects an empty size, but any non-empty string passes here", () => {
+    // Sizes are baker-configurable (lib/db/queries.ts), not a fixed enum, so
+    // the schema only checks shape. Whether a size is actually still offered
+    // is checked against the live DB in the submit route — see
+    // app/api/submit-inquiry/route.test.ts "rejects a size that's no longer
+    // active".
+    expect(inquirySubmissionSchema.safeParse({ ...valid, size: "" }).success).toBe(
+      false,
+    );
     expect(
       inquirySubmissionSchema.safeParse({ ...valid, size: "sheet cake" }).success,
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("normalizes blank optional strings to undefined", () => {

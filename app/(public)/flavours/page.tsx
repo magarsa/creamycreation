@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import { FLAVOURS, SIZES } from "@/lib/domain/order";
+import { FLAVOURS } from "@/lib/domain/order";
+import { formatPriceRange } from "@/lib/domain/pricing";
+import { getActiveAddons, getActiveSizes } from "@/lib/db/queries";
 import { bakeryIdentity } from "@/lib/bakery";
+
+// Sizes/add-ons are baker-edited and should reflect immediately — same reasoning
+// as the order flow's Details page, which reads the same tables.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { name } = bakeryIdentity();
@@ -11,15 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const ADDONS: Array<{ name: string; included?: boolean }> = [
-  { name: "Buttercream finish", included: true },
-  { name: "Fresh flowers" },
-  { name: "Custom topper" },
-  { name: "Extra tier" },
-];
-
-export default function FlavoursPage() {
+export default async function FlavoursPage() {
   const { location } = bakeryIdentity();
+  const [sizes, addons] = await Promise.all([getActiveSizes(), getActiveAddons()]);
+
   return (
     <main className="flex flex-1 flex-col gap-8 px-[var(--screen-pad)] pb-16 pt-2">
       <div>
@@ -33,11 +34,20 @@ export default function FlavoursPage() {
 
       <Section title="Sizes">
         <ul className="flex flex-col divide-y divide-hairline border border-hairline">
-          {SIZES.map((s) => (
-            <li key={s} className="px-4 py-3 text-sm">
-              {s}
+          {sizes.map((s) => (
+            <li
+              key={s.id}
+              className="flex items-center justify-between px-4 py-3 text-sm"
+            >
+              {s.label}
+              <span className="text-[13px] text-muted">
+                {formatPriceRange({ minCents: s.base_price_cents, maxCents: s.base_price_cents })}
+              </span>
             </li>
           ))}
+          {sizes.length === 0 && (
+            <li className="px-4 py-3 text-sm text-muted">Coming soon.</li>
+          )}
         </ul>
       </Section>
 
@@ -53,26 +63,27 @@ export default function FlavoursPage() {
 
       <Section title="Add-ons">
         <ul className="flex flex-col divide-y divide-hairline border border-hairline">
-          {ADDONS.map((a) => (
+          {addons.map((a) => (
             <li
-              key={a.name}
+              key={a.id}
               className="flex items-center justify-between px-4 py-3 text-sm"
             >
-              {a.name}
-              <span
-                className="text-[11px] font-medium uppercase tracking-[0.04em]"
-                style={a.included ? { color: "var(--wine-fg)" } : undefined}
-              >
-                {a.included ? "Included" : "Quoted"}
+              {a.label}
+              <span className="text-[13px] text-muted">
+                {formatPriceRange({ minCents: a.price_min_cents, maxCents: a.price_max_cents })}
               </span>
             </li>
           ))}
+          {addons.length === 0 && (
+            <li className="px-4 py-3 text-sm text-muted">None right now.</li>
+          )}
         </ul>
       </Section>
 
       <p className="text-[13px] leading-relaxed text-muted">
-        Pickup only from {location}. Every cake is made to order, so final
-        pricing is quoted by DM once we&rsquo;ve talked through the details.
+        Prices are estimates. Pickup only from {location}. Every cake is made
+        to order, so I confirm the exact price by DM once we&rsquo;ve talked
+        through the details.
       </p>
     </main>
   );
